@@ -79,7 +79,6 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
     send_get_message(id, f"{answer} added to your food list!")
 
 def add_recevier_to_db(receiver):
-
     id = receiver.telegram_id
     location = receiver.location
     food_types = receiver.food_types
