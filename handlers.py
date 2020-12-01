@@ -2,6 +2,15 @@ from buttons import *
 from message import send_post_message, send_get_message
 from receiver import Reciver
 from location import Location
+import donator
+
+#this needs to be removed
+donators = []
+
+def add_donator_if_doesnt_exist(donator_id):
+    donator_to_add = donator()
+    donator_to_add
+#
 
 
 def handle_choosing_user_type(message, request, id_obj_map):
