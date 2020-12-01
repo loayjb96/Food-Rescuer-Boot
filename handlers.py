@@ -149,7 +149,7 @@ def handle_receiver_food_types(message, id_obj_map):
         "chat_id": message.get_id(),
         "reply_markup": servings_options
     }
-    send_post_message(data.get('chat_id'), 'type', data)
+    send_post_message(data.get('chat_id'), 'choose your food type', data)
 
 
 def handle_receiver_food_types_response(message, request, id_obj_map):
