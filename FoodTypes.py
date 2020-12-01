@@ -1,1 +1,1 @@
-food_type=['Kosher','Halal','Vegetrian','Vegan','Animal Food','Other']
+food_type = ['Halal', 'Kosher', 'Vegetarian', 'Vegan', 'Animals', 'Other']

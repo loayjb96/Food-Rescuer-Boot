@@ -81,7 +81,9 @@ def get_bot():
     bot.add_handler('/location', handlers.handle_location)
     bot.add_handler('Are you a Donator or Receiver?', handlers.handle_type_answer)
     bot.add_handler('location response', handlers.handle_location_response)
+
     #bot.add_handler('Please send your location', handlers.handle_location_response)  
     bot.add_handler('The food is good for?', handlers.handle_experation_day_response)
     bot.add_handler('How many people is the meal for?', handlers.handle_num_of_servings_response)
+
     return bot
