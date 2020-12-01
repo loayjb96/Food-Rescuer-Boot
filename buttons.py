@@ -32,9 +32,7 @@ def get_poll_buttons(options, selected):
 
     for value1, value2 in zip(options, selected):
         options_keyboard.append([InlineKeyboardButton(text=value1,
-                                                      callback_data=value1),
-                                 InlineKeyboardButton(text=value2,
-                                                      callback_data=value2)])
+                                                      callback_data=value1)])
 
         reply_markup = InlineKeyboardMarkup(options_keyboard,one_time_keyboard=True)
     return json.dumps(reply_markup.to_dict())
