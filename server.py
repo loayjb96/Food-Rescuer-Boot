@@ -1,7 +1,6 @@
 from flask import Flask, Response, request
 from bot import get_bot
 
-
 app = Flask(__name__)
 
 

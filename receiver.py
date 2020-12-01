@@ -13,7 +13,6 @@ class Reciver():
         self.telegram_id = id
 
     def add_receiver_food(self, food):
-
         self.food_types.add(food)
 
     def set_location(self, current_location):

@@ -36,5 +36,5 @@ def get_poll_buttons(options, selected):
                                  InlineKeyboardButton(text=value2,
                                                       callback_data=value2)])
 
-        reply_markup = InlineKeyboardMarkup(options_keyboard,one_time_keyboard=True)
+        reply_markup = InlineKeyboardMarkup(options_keyboard, one_time_keyboard=True)
     return json.dumps(reply_markup.to_dict())

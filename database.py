@@ -100,6 +100,7 @@ def add_receiver_food_type(cursor, args, table_name):
     except Exception as e:
         print("Error while adding new receiver food type", e)
 
+
 def main_db(action, *args):
     try:
         with connection.cursor() as cursor:
