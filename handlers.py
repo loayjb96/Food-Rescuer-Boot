@@ -158,6 +158,7 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
     if answer == 'Done':
         add_recevier_to_db(id_obj_map[id])
         # TODO: show relevant foods
+        return
     id_obj_map[id].add_receiver_food(answer)
     send_get_message(id, f"{answer} added to your food list!")
 
@@ -178,5 +179,6 @@ def add_recevier_to_db(receiver):
 
     main_db('add_receiver', receiver_to_db)
 
+    send_get_message(id, f"You have been added to the DB!")
     print("enter db")
     print()
