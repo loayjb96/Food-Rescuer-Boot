@@ -1,0 +1,1 @@
+food_type=['Kosher','Halal','Vegetrian','Vegan','Animal Food','Other']
