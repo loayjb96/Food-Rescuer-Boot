@@ -86,13 +86,32 @@ def add_food_type(cursor, args, table_name):
         print("Error while adding new food type", e)
 
 
+def add_receiver_food_type(cursor, args, table_name):
+    receiver_id = args[0]
+    type = args[1]
+    type_id = food_type.index(type) + 1
+    obj = {'id': '0', 'type_id': type_id, 'receiver_id': receiver_id}
+    try:
+        columns = ', '.join("`" + str(x).replace('/', '_') + "`" for x in obj.keys())
+        values = ', '.join("'" + str(x).replace('/', '_') + "'" for x in obj.values())
+        query = "INSERT into %s (%s) VALUES (%s);" % (table_name, columns, values)
+        cursor.execute(query)
+        connection.commit()
+    except Exception as e:
+        print("Error while adding new receiver food type", e)
+
 def main_db(action, *args):
     try:
         with connection.cursor() as cursor:
             if action == 'add_donator':
                 add_donator(cursor, args, 'donator')
             elif action == 'add_receiver':
-                add_receiver(cursor, args, 'receiver')
+                receiver = args[0]
+                food_types = receiver['food_types']
+                del receiver['food_types']
+                add_receiver(cursor, (receiver,), 'receiver')
+                for type_ in food_types:
+                    add_receiver_food_type(cursor, (receiver['id'], type_), 'receiver_types')
             elif action == 'add_location':
                 add_location(cursor, args, 'location')
             elif action == 'add_food':
@@ -115,9 +134,9 @@ if __name__ == '__main__':
     main_db('add_location', {'id': '0', 'longitude': 36, 'latitude': 38})
     main_db('add_location', {'id': '0', 'longitude': 37, 'latitude': 39})
 
-    main_db('add_receiver', {'id': 1, 'location_id': 1})
-    main_db('add_receiver', {'id': 2, 'location_id': 3})
-    main_db('add_receiver', {'id': 3, 'location_id': 2})
+    main_db('add_receiver', {'id': 1, 'location_id': 1, 'food_types': ['Halal', 'Other']})
+    main_db('add_receiver', {'id': 2, 'location_id': 3, 'food_types': ['Kosher', 'Vegan']})
+    main_db('add_receiver', {'id': 3, 'location_id': 2, 'food_types': ['Halal']})
 
     main_db('add_donator',
             {'id': 1, 'user_name': 'donator1', 'location_id': 4, 'donation_count': 1, 'donation_level': 0.5})
