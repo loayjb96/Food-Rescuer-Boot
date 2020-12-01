@@ -14,13 +14,12 @@ class Message:
         self.id = self.message['chat']['id']
         splitted_msg = self.message['text'].split()
 
-        if len(splitted_msg) != 2:
+        if len(splitted_msg) == 0:
             self.action = None
             self.params = None
         else:
             self.action = splitted_msg[0]
-            if splitted_msg[1].isnumeric():
-                self.params = int(splitted_msg[1])
+            self.params = splitted_msg[1:]
 
     def get_action(self):
         return self.action
@@ -32,7 +31,7 @@ class Message:
         return self.id
 
 
-def send_message(chat_id, message):
+def send_get_message(chat_id, message):
     try:
         url = f"{MESSAGES_URL}?chat_id={chat_id}&text={message}"
         requests.get(url)

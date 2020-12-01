@@ -12,23 +12,26 @@ class Bot:
 
     def build_flow(self):
         self.flow_graph = {
-            '/start': {
-                '/donator': {
-                    '/location': {
-                        '/num_of_servings': {
-                            '/expiration_day': {
-                                '/done'
+            'start': {
+                'donator': {
+                    'location': {
+                        'num_of_servings': {
+                            'expiration_day': {
+                                'done'
                             }
                         }
                     }
                 },
-                '/receiver': {
-                    '/location': {
-                        '/relevant_foods': {}
+                'receiver': {
+                    'location': {
+                        'relevant_foods': {}
                     }
                 }
             }
         }
+
+    # def get_next_step(self, obj, req):
+    #     if obj == None:
 
     def add_handler(self, action, func):
         self.handlers[action] = func
@@ -43,23 +46,22 @@ class Bot:
         try:
             print("REQ", request)
             curr_msg = Message(request.get('message'))
-            print(request.get('message'))
+            # print(request.get('message'))
             action = curr_msg.get_action()
 
             message = ''
             if action not in self.handlers:
                 message = self.usage()
             else:
-                number = curr_msg.get_params()
-                message = self.handlers.get(action)(number)
-            print('after function')
-            if action == '/location':
-                data = {"chat_id": curr_msg.get_id(),
-                        "text": "TEST",
-                        "reply_markup": message}
-                send_post_message(curr_msg.get_id(), 'location', data)
-            else:
-                send_message(curr_msg.get_id(), message)
+                self.handlers.get(action)(curr_msg, request)
+            # print('after function')
+            # if action == '/location':
+            #     data = {"chat_id": curr_msg.get_id(),
+            #             "text": "TEST",
+            #             "reply_markup": message}
+            #     send_post_message(curr_msg.get_id(), 'location', data)
+            # else:
+            #     send_message(curr_msg.get_id(), message)
         except Exception as e:
             pass
 
@@ -67,6 +69,6 @@ class Bot:
 def get_bot():
     bot = Bot()
 
-    bot.add_handler('/type_choose', handlers.handle_choosing_user_type)
-    bot.add_handler('/location', handlers.get_location)
+    bot.add_handler('/start', handlers.handle_choosing_user_type)
+    bot.add_handler('/location', handlers.handle_location)
     return bot
