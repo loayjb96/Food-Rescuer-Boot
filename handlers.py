@@ -57,5 +57,19 @@ def handle_num_of_servings_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
     send_get_message(id, f"Your answer is {answer}")
+    handle_food_types(message)
+
+def handle_food_types(message):
+    print("HANDLE FOOD")
+    servings_options = get_poll_buttons(['Kosher','Halal','Vegetrian','Vegan','Animal Food','Other'], ['✔'] * 6)
+    data = {
+        "chat_id": message.get_id(),
+        "reply_markup": servings_options
+    }
+    send_post_message(data.get('chat_id'), 'type', data)
 
 
+def food_types(message, request, id_obj_map):
+    answer = request['callback_query']['data']
+    id = message.get_id()
+    send_get_message(id, f"{answer} added to your food list!")
