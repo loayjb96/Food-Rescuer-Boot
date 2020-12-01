@@ -137,8 +137,7 @@ def handle_num_of_servings_response(message, request, id_obj_map):
         if option == answer:
             id_obj_map[id].m_food_being_built.set_number_of_servings(serving_size_options_values[i])
         i += 1
-
-    print("you can add food to DB")
+    add_donator_to_db(id_obj_map[id])
 
 
 def handle_receiver_food_types(message, id_obj_map):
@@ -163,6 +162,41 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
     send_get_message(id, f"{answer} added to your food list!")
 
 
+def add_donator_to_db(donator):
+    print("ADD DONATOR")
+    id = donator.m_id
+    location = donator.m_location
+    donation_count = donator.m_donation_counter
+    donation_level = donator.m_donator_level
+    location_to_db = {'id': '0',
+                      'longitude': location.longitude,
+                      'latitude': location.latitude
+                      }
+    main_db('add_location', location_to_db)
+
+    donator_to_db = {
+        'id': id,
+        'user_name': 'null',
+        'location_id': get_max_id('location'),
+        'donation_count': donation_count,
+        'donation_level': donation_level
+    }
+    main_db('add_donator', donator_to_db)
+    food_to_db = {
+        'id': '0',
+        'donator_id': id,
+        'location_id': donator_to_db['location_id'],
+        'available': 1,
+        'number_of_servings': donator.m_food_being_built.m_number_of_servings,
+        'expiration_date': datetime.timestamp(donator.m_food_being_built.m_expiration_date),
+        'description': donator.m_food_being_built.m_description,
+        'food_types': donator.m_food_being_built.m_food_types
+    }
+    print("FOOD TO DB", food_to_db)
+    main_db('add_food', food_to_db)
+    send_get_message(id, f"You have added new MEAL!!")
+
+
 def add_recevier_to_db(receiver):
     id = receiver.telegram_id
     location = receiver.location
@@ -171,7 +205,6 @@ def add_recevier_to_db(receiver):
                       'longitude': location.longitude,
                       'latitude': location.latitude
                       }
-
     main_db('add_location', location_to_db)
     receiver_to_db = {'id': id,
                       'location_id': get_max_id('location'),
