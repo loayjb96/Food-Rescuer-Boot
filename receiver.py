@@ -6,15 +6,15 @@ from FoodTypes import food_type
 class Reciver():
     def __init__(self):
         self.telegram_id = None
-        self.food_types = []
+        self.food_types = set()
         self.location = None
 
     def init_reciver_id(self, id):
         self.telegram_id = id
 
-    def init_receiver_food(self, food):
-        for item in food:
-            self.food_types.append(item)
+    def add_receiver_food(self, food):
+
+        self.food_types.add(food)
 
     def set_location(self, current_location):
         self.location = current_location

@@ -60,7 +60,7 @@ def add_food(cursor, args, table_name):
         print("Error while adding new food", e)
 
 
-def get_max_id(cursor, table_name):
+def get_max_id(table_name):
     try:
         with connection.cursor() as cursor:
             query = f'select max(id) as id from {table_name} '
@@ -119,7 +119,7 @@ def main_db(action, *args):
                 food_types = food['food_types']
                 del food['food_types']
                 add_food(cursor, (food,), 'food')
-                food_id = get_max_id(cursor, 'food')
+                food_id = get_max_id('food')
                 for type_ in food_types:
                     add_food_type(cursor, (food_id, type_), 'food_types')
             else:
