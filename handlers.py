@@ -140,7 +140,7 @@ def handle_num_of_servings_response(message, request, id_obj_map):
 
     print("you can add food to DB")
 
-
+#----------- handle food for client
 def handle_receiver_food_types(message, id_obj_map):
     print("HANDLE FOOD")
     servings_options = get_poll_buttons(['Halal', 'Kosher', 'Vegetarian', 'Vegan', 'Animals', 'Other', 'Done'],
@@ -157,10 +157,37 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
     id = message.get_id()
     if answer == 'Done':
         add_recevier_to_db(id_obj_map[id])
-        # TODO: show relevant foods
+        
         return
     id_obj_map[id].add_receiver_food(answer)
     send_get_message(id, f"{answer} added to your food list!")
+
+
+#-----------------handle food 
+def handle_food_types(message, id_obj_map):
+    print("HANDLE FOOD type for a specific meal")
+    servings_options = get_poll_buttons(['Halal', 'Kosher', 'Vegetarian', 'Vegan', 'Animals', 'Other', 'Done'],
+                                        ['✔'] * 7)
+    data = {
+        "chat_id": message.get_id(),
+        "reply_markup": servings_options
+    }
+    send_post_message(data.get('chat_id'), 'added to meal type', data)
+
+
+def handle_food_types_response(message, request, id_obj_map):
+    answer = request['callback_query']['data']
+    id = message.get_id()
+    if answer == 'Done':
+        #add_recevier_to_db(id_obj_map[id])  todo: add adding food to DB
+        handle_experation_day(message, request, id_obj_map)
+        return
+    id_obj_map[id].m_food_being_built.add_food_type(answer)
+    send_get_message(id, f"{answer} added !")
+
+
+#--------------
+
 
 
 def add_recevier_to_db(receiver):
@@ -182,3 +209,7 @@ def add_recevier_to_db(receiver):
     send_get_message(id, f"You have been added to the DB!")
     print("enter db")
     print()
+
+
+
+    

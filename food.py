@@ -3,7 +3,7 @@ from datetime import datetime, timedelta,date
 class Food:
  def __init__(self):
   self.m_food_id =""
-  self.m_food_types =""
+  self.m_food_types =[]
   self.m_donator =""
   self.m_photos=""
   self.m_number_of_servings=""
@@ -15,5 +15,8 @@ class Food:
 
  def set_number_of_servings(self,serving_size):
   self.m_number_of_servings = serving_size
+
+ def add_food_type(self, food):
+   self.food_types.add(food)
  
   
