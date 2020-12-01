@@ -1,4 +1,4 @@
-from location import location
+from location import Location
 from geopy.distance import geodesic
 from FoodTypes import food_type
 
@@ -12,24 +12,18 @@ class Reciver():
     def init_reciver_id(self, id):
         self.telegram_id = id
 
-    def init_reciver_food(self, food):
+    def init_receiver_food(self, food):
         for item in food:
             self.food_types.append(item)
 
-    def init_reciver_location(self, current_location):
-
+    def set_location(self, current_location):
         self.location = current_location
 
+    def get_relevant_food(self):
+        return self.food_types
 
-    def get_relevante_food(self):
-        return food_type
-
-
-    def get_relative_distance(self,other_location):
+    def get_relative_distance(self, other_location):
         return geodesic(self.location, other_location).kilometers
-
-
-
 
 # res = Reciver()
 # loc = location()

@@ -8,6 +8,7 @@ class Bot:
         self.handlers = {}
         self.receivers = []
         self.donators = []
+        self.id_obj_map = {}
         self.build_flow()
 
     def build_flow(self):
@@ -44,16 +45,23 @@ class Bot:
 
     def action(self, request):
         try:
-            print("REQ", request)
-            curr_msg = Message(request.get('message'))
-            # print(request.get('message'))
-            action = curr_msg.get_action()
-
-            message = ''
-            if action not in self.handlers:
-                message = self.usage()
+            # print("REQ")
+            for key in request:
+                print(key, ":", request[key])
+            # for key in request.get('callback_query'):
+            #     print(key, request.get('callback_query')[key])
+            if 'message' in request:
+                if 'location' in request.get('message'):
+                    curr_msg = Message({'text': 'location response', 'chat': request.get('message').get('chat')})
+                else:
+                    curr_msg = Message(request.get('message'))
             else:
-                self.handlers.get(action)(curr_msg, request)
+                message = {'text': request.get('callback_query').get('message').get('text'),
+                           'chat': request.get('callback_query').get('message').get('chat')}
+                curr_msg = Message(message)
+            action = curr_msg.get_action()
+            print("ACTION", action)
+            self.handlers.get(action)(curr_msg, request, self.id_obj_map)
             # print('after function')
             # if action == '/location':
             #     data = {"chat_id": curr_msg.get_id(),
@@ -71,4 +79,6 @@ def get_bot():
 
     bot.add_handler('/start', handlers.handle_choosing_user_type)
     bot.add_handler('/location', handlers.handle_location)
+    bot.add_handler('Are you a Donator or Receiver?', handlers.handle_type_answer)
+    bot.add_handler('location response', handlers.handle_location_response)
     return bot

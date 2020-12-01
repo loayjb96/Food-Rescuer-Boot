@@ -6,26 +6,15 @@ class Message:
     def __init__(self, message):
         self.message = message
         self.action = None
-        self.params = None
         self.id = None
         self.process_message()
 
     def process_message(self):
         self.id = self.message['chat']['id']
-        splitted_msg = self.message['text'].split()
-
-        if len(splitted_msg) == 0:
-            self.action = None
-            self.params = None
-        else:
-            self.action = splitted_msg[0]
-            self.params = splitted_msg[1:]
+        self.action = self.message['text']
 
     def get_action(self):
         return self.action
-
-    def get_params(self):
-        return self.params
 
     def get_id(self):
         return self.id
