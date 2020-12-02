@@ -386,7 +386,7 @@ def show_food_list(chat_id, receiver):
 
 
 def handle_exciting_receiver_in_db(message, request, id_obj_map):
-    user_types = get_inline_buttons(['Show food', 'Edit Profile'])
+    user_types = get_inline_buttons(['Show food', 'Restart Process'])
     data = {
         "chat_id": message.get_id(),
         "reply_markup": user_types
@@ -401,7 +401,7 @@ def handle_exciting_receiver_in_db_responce(message, request, id_obj_map):
         send_get_message(id, f"{answer} was pressed!")
         print(id, id_obj_map)
         show_food_list(id, id_obj_map[id])
-    elif answer == 'Edit Profile':
+    elif answer == 'Restart Process':
         main_db('delete_receiver_by_id', id)
         del id_obj_map[id]
         rec = Reciver()
