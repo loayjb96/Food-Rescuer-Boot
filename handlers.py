@@ -6,6 +6,7 @@ from donator import Donator
 from datetime import datetime, timedelta, date
 from database import main_db, get_max_id
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 from box import box
 
@@ -30,6 +31,9 @@ def add_donator_if_doesnt_exist(donator_id):
 
 >>>>>>> 905c5320eff58854bf3ab0efa94649f7eaf312af
 # --------------------------
+=======
+
+>>>>>>> kareems-big-branch
 
 # ---- donator or reciever
 
@@ -120,32 +124,15 @@ def handle_food_types(message, id_obj_map):
     DonatorId = message.get_id()
     currentMeal = id_obj_map[DonatorId].m_food_being_built
 
-
-   
-    signs_list = []
-    # print(signs_list)
-    # print("1")
-    # signs_list.append('✔')
-    # print(signs_list)
-    # print("2")
-    # signs_list.append('-')
-    # print(signs_list)
-    # print("3")
-    for food_type in food_type_options:
-        print(signs_list)
-        if food_type in currentMeal.m_food_types:
-            signs_list.append('✔')
-        else:
-            signs_list.append('-')
-
+    
     sign_list_2 = [( '✔' if (food_type in currentMeal.m_food_types) else  '-') for food_type in food_type_options]
 
-        
+    
     print("after adding")
 
-    print(signs_list)
+    print(sign_list_2)
     print("created buttons")
-    servings_options = get_poll_buttons(food_type_options,get_correct_type_button_signs())
+    servings_options = get_poll_buttons(food_type_options, sign_list_2)  
     print("created buttons")
     data = {
         "chat_id": message.get_id(),
@@ -157,13 +144,24 @@ def handle_food_types(message, id_obj_map):
 def handle_food_types_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
+    print(answer + " was selected")
     if answer == 'Done':
         #add_recevier_to_db(id_obj_map[id])  todo: add adding food to DB
+        print("done selection")
         handle_experation_day(message, request, id_obj_map)
         return
-    id_obj_map[id].m_food_being_built.add_food_type(answer)
-    send_get_message(id, f"{answer} added !")
 
+    if answer != '✔' and answer != '-':
+        print("not signs")
+        if answer in id_obj_map[id].m_food_being_built.m_food_types:
+            print("already added")
+            id_obj_map[id].m_food_being_built.remove_food_type(answer)
+            send_get_message(id, f"{answer} removed !")
+        else:
+            print("not added before")
+            id_obj_map[id].m_food_being_built.add_food_type(answer)
+            send_get_message(id, f"{answer} added !")
+        handle_food_types(message, id_obj_map)
 
 # ---- experation date
 experation_day_options = ['Today only', '2 days', '3 days', 'frozen']
@@ -171,13 +169,17 @@ experation_day_options_values = [0, 1, 2, 30]
 
 
 def handle_experation_day(message, request, id_obj_map):
+    print("in experation day")
     servings_options = get_inline_buttons(experation_day_options)
+    print("created buttons")
     data = {
         "chat_id": message.get_id(),
         "reply_markup": servings_options
     }
+    print("going to send")
+    
     send_post_message(data.get('chat_id'), 'The food is good for?', data)
-
+    print("sent")
 
 def handle_experation_day_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
@@ -223,13 +225,14 @@ def handle_num_of_servings_response(message, request, id_obj_map):
 
 #----------- handle food for client
 def handle_receiver_food_types(message, id_obj_map):
-    print("HANDLE FOOD")
+    print("HANDLE FOOD  for reciever")
     servings_options = get_poll_buttons(['Halal', 'Kosher', 'Vegetarian', 'Vegan', 'Animals', 'Other', 'Done'],
                                         ['✔'] * 7)
     data = {
         "chat_id": message.get_id(),
         "reply_markup": servings_options
     }
+    print("ended handling food for reciever")
     send_post_message(data.get('chat_id'), 'choose your food type', data)
 
 
@@ -251,11 +254,14 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 #--------------
 
 =======
+=======
+>>>>>>> kareems-big-branch
 def add_donator_to_db(donator):
     print("ADD DONATOR")
     id = donator.m_id
@@ -289,7 +295,10 @@ def add_donator_to_db(donator):
     print("FOOD TO DB", food_to_db)
     main_db('add_food', food_to_db)
     send_get_message(id, f"You have added new MEAL!!")
+<<<<<<< HEAD
 >>>>>>> 905c5320eff58854bf3ab0efa94649f7eaf312af
+=======
+>>>>>>> kareems-big-branch
 
 
 def add_recevier_to_db(receiver):
@@ -301,16 +310,20 @@ def add_recevier_to_db(receiver):
                       'latitude': location.latitude
                       }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
    # main_db('add_location', location_to_db)
 =======
     main_db('add_location', location_to_db)
 >>>>>>> 905c5320eff58854bf3ab0efa94649f7eaf312af
+=======
+    main_db('add_location', location_to_db)
+>>>>>>> kareems-big-branch
     receiver_to_db = {'id': id,
                       'location_id': get_max_id('location'),
                       'food_types': food_types}
 
-   # main_db('add_receiver', receiver_to_db)
+    main_db('add_receiver', receiver_to_db)
 
     send_get_message(id, f"You have been added to the DB!")
 <<<<<<< HEAD
