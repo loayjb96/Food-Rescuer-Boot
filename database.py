@@ -49,6 +49,30 @@ def add_location(cursor, args, table_name):
         print("Error while adding new location", e)
 
 
+def add_photo(cursor, args, table_name):
+    photo = args[0]
+    try:
+        columns = ', '.join("`" + str(x).replace('/', '_') + "`" for x in photo.keys())
+        values = ', '.join("'" + str(x).replace('/', '_') + "'" for x in photo.values())
+        query = "INSERT into %s (%s) VALUES (%s);" % (table_name, columns, values)
+        cursor.execute(query)
+        connection.commit()
+    except Exception as e:
+        print("Error while adding new photo", e)
+
+
+def add_food_photos(cursor, args, table_name):
+    photo = args[0]
+    try:
+        columns = ', '.join("`" + str(x).replace('/', '_') + "`" for x in photo.keys())
+        values = ', '.join("'" + str(x).replace('/', '_') + "'" for x in photo.values())
+        query = "INSERT into %s (%s) VALUES (%s);" % (table_name, columns, values)
+        cursor.execute(query)
+        connection.commit()
+    except Exception as e:
+        print("Error while adding new photo", e)
+
+
 def add_food(cursor, args, table_name):
     food = args[0]
     try:
@@ -230,6 +254,10 @@ def main_db(action, *args):
                 delete_receiver_by_id(cursor, args)
             elif action == 'delete_donator_by_id':
                 delete_donator_by_id(cursor, args)
+            elif action == 'add_photo':
+                add_photo(cursor, args, 'photo')
+            elif action == 'add_food_photos':
+                add_food_photos(cursor, args, 'food_photos')
             else:
                 print("Invalid option")
     except Exception as err:

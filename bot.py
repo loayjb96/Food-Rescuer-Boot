@@ -2,6 +2,7 @@ from message import *
 import handlers
 
 
+
 class Bot:
     def __init__(self):
         self.flow_graph = {}
@@ -44,6 +45,10 @@ class Bot:
     def action(self, request):
         try:
             # print("REQ")
+            # photo = request['message']['photo']
+            # print("PHOTO", photo, type(photo), type(photo[-1]))
+            # get_photo_from_file_path(photo[-1]['file_id'])
+
             for key in request:
                 print(key, ":", request[key])
             # for key in request.get('callback_query'):
@@ -51,6 +56,8 @@ class Bot:
             if 'message' in request:
                 if 'location' in request.get('message'):
                     curr_msg = Message({'text': 'location response', 'chat': request.get('message').get('chat')})
+                elif 'photo' in request.get('message'):
+                    curr_msg = Message({'text': 'add photo response', 'chat': request.get('message').get('chat')})
                 else:
                     curr_msg = Message(request.get('message'))
             else:
@@ -89,4 +96,9 @@ def get_bot():
 
     bot.add_handler('Show food', handlers.handle_receiver_end_response)
     bot.add_handler('what would you like to do?', handlers.handle_exciting_receiver_in_db_responce)
+
+    bot.add_handler('Do you want to add some photos?', handlers.handle_add_photos_response)
+    bot.add_handler('add photo response', handlers.handle_photo_response)
+    bot.add_handler('Done', handlers.handle_add_photos_done)
+
     return bot

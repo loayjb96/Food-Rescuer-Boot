@@ -11,6 +11,7 @@ class Donator:
         self.m_food_being_built = Food()
         self.user_name = None
         self.m_donation_counter = 1
+        self.photos = set()
 
     def set_location(self, location):
         self.m_location = location

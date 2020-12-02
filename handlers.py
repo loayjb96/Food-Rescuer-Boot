@@ -5,6 +5,8 @@ from location import Location
 from donator import Donator
 from datetime import datetime, timedelta, date
 from database import main_db, get_max_id
+from photo import *
+import pathlib
 
 from box import box
 
@@ -213,7 +215,7 @@ def handle_num_of_servings_response(message, request, id_obj_map):
         if option == answer:
             id_obj_map[id].m_food_being_built.set_number_of_servings(serving_size_options_values[i])
         i += 1
-    add_donator_to_db(id_obj_map[id])
+    handle_add_photos(message, request, id_obj_map)
 
 
 # ----------- handle food for client
@@ -255,6 +257,30 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
         handle_receiver_food_types(message, id_obj_map)
 
 
+def handle_add_photos(message, request, id_obj_map):
+    print("PHOTOS")
+    user_types = get_inline_buttons(['Add photos', 'Skip'])
+    data = {
+        "chat_id": message.get_id(),
+        "reply_markup": user_types
+    }
+    send_post_message(data.get('chat_id'), 'Do you want to add some photos?', data)
+
+
+def handle_add_photos_response(message, request, id_obj_map):
+    answer = request['callback_query']['data']
+    id = message.get_id()
+    if answer == 'Add photos':
+        send_get_message(id, f"Add photos, then type Done")
+    else:
+        add_donator_to_db(id_obj_map[id])
+
+
+def handle_add_photos_done(message, request, id_obj_map):
+    print("DONE!")
+    add_donator_to_db(id_obj_map[message.get_id()])
+
+
 def add_donator_to_db(donator):
     print("ADD DONATOR")
     id = donator.m_id
@@ -289,6 +315,23 @@ def add_donator_to_db(donator):
     }
     print("FOOD TO DB", food_to_db)
     main_db('add_food', food_to_db)
+    if len(donator.photos) != 0:
+        food_id = get_max_id('food')
+
+        # dir_path = f"Food{food_id}/photos/"
+        # print("DIR PATH", dir_path)
+        # try:
+        #     os.mkdir(dir_path)
+        # except Exception as e:
+        #     print("ERROR", e)
+        for photo_id in donator.photos:
+            dir_path = f"Food{food_id}-"
+            photo_path = save_photo_by_path(photo_id, dir_path)
+            main_db('add_photo', {'id': '0', 'path': photo_path})
+            photo_db_id = get_max_id('photo')
+            main_db('add_food_photos', {'id': '0', 'food_id': food_id, 'photo_id': photo_db_id})
+        print("ID", food_id)
+
     send_get_message(id, f"You have added new MEAL!!")
 
 
@@ -394,3 +437,10 @@ def handle_exciting_receiver_in_db_responce(message, request, id_obj_map):
         id_obj_map[id] = rec
         handle_location(message, request, id_obj_map)
         # send_get_message(id, f"{answer} was pressed!")
+
+
+def handle_photo_response(message, request, id_obj_map):
+    photo = request['message']['photo']
+    id = message.get_id()
+    id_obj_map[id].photos.add(photo[-1]['file_id'])
+    print("PHOTOS", id_obj_map[id].photos)
