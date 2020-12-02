@@ -5,9 +5,7 @@ from location import Location
 from donator import Donator
 from datetime import datetime, timedelta, date
 from database import main_db, get_max_id
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
+
 from box import box
 
 # this needs to be removed
@@ -29,11 +27,7 @@ def add_donator_if_doesnt_exist(donator_id):
         return get_donator_by_id(donator_id)
 
 
->>>>>>> 905c5320eff58854bf3ab0efa94649f7eaf312af
-# --------------------------
-=======
 
->>>>>>> kareems-big-branch
 
 # ---- donator or reciever
 
@@ -242,26 +236,16 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
     print(answer)
     if answer == 'Done':
         add_recevier_to_db(id_obj_map[id])
-<<<<<<< HEAD
-        
-=======
         handle_add_receiver_process_end(message)
->>>>>>> 905c5320eff58854bf3ab0efa94649f7eaf312af
+
         return
     id_obj_map[id].add_receiver_food(answer)
 
     send_get_message(id, f"{answer} added to your food list!")
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-
 #--------------
 
-=======
-=======
->>>>>>> kareems-big-branch
 def add_donator_to_db(donator):
     print("ADD DONATOR")
     id = donator.m_id
@@ -295,10 +279,7 @@ def add_donator_to_db(donator):
     print("FOOD TO DB", food_to_db)
     main_db('add_food', food_to_db)
     send_get_message(id, f"You have added new MEAL!!")
-<<<<<<< HEAD
->>>>>>> 905c5320eff58854bf3ab0efa94649f7eaf312af
-=======
->>>>>>> kareems-big-branch
+
 
 
 def add_recevier_to_db(receiver):
@@ -309,16 +290,14 @@ def add_recevier_to_db(receiver):
                       'longitude': location.longitude,
                       'latitude': location.latitude
                       }
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 
    # main_db('add_location', location_to_db)
-=======
+
     main_db('add_location', location_to_db)
->>>>>>> 905c5320eff58854bf3ab0efa94649f7eaf312af
-=======
+
     main_db('add_location', location_to_db)
->>>>>>> kareems-big-branch
+
     receiver_to_db = {'id': id,
                       'location_id': get_max_id('location'),
                       'food_types': food_types}
@@ -326,14 +305,6 @@ def add_recevier_to_db(receiver):
     main_db('add_receiver', receiver_to_db)
 
     send_get_message(id, f"You have been added to the DB!")
-<<<<<<< HEAD
-    print("enter db")
-    print()
-
-
-
-    
-=======
 
 
 def handle_add_receiver_process_end(message):
@@ -411,4 +382,4 @@ def handle_exciting_receiver_in_db_responce(message, request, id_obj_map):
         id_obj_map[id] = rec
         handle_location(message, request, id_obj_map)
         # send_get_message(id, f"{answer} was pressed!")
->>>>>>> 905c5320eff58854bf3ab0efa94649f7eaf312af
+
