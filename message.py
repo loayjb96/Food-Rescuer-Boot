@@ -7,17 +7,23 @@ class Message:
         self.message = message
         self.action = None
         self.id = None
+        self.user_name=None
         self.process_message()
 
     def process_message(self):
         self.id = self.message['chat']['id']
+        self.user_name=self.message['chat']['username']
         self.action = self.message['text']
+
 
     def get_action(self):
         return self.action
 
     def get_id(self):
         return self.id
+
+    def get_user_name(self):
+        return self.user_name
 
 
 def send_get_message(chat_id, message):
