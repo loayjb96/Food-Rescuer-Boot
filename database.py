@@ -1,6 +1,7 @@
 import pymysql
 from config import DB_PASSWORD
 from FoodTypes import *
+from location import Location
 
 # connection = pymysql.connect(
 #     host='localhost',
@@ -101,6 +102,98 @@ def add_receiver_food_type(cursor, args, table_name):
         print("Error while adding new receiver food type", e)
 
 
+def get_location_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "select * from location as l where l.id = " + str(id)
+    cursor.execute(query)
+    res = cursor.fetchall()
+    if len(res) == 0:
+        return None
+    return res[0]
+
+
+def get_receiver_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "select * from receiver as r where r.id = " + str(id)
+    cursor.execute(query)
+    res = cursor.fetchall()
+    if len(res) == 0:
+        return None
+    return res[0]
+
+
+def get_donator_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "select * from donator as d where d.id = " + str(id)
+    cursor.execute(query)
+    res = cursor.fetchall()
+    if len(res) == 0:
+        return None
+    return res[0]
+
+
+def process_foods_types(cursor, res):
+    processed_res = {}
+    for food in res:
+        if food['id'] not in processed_res:
+            food['food_types'] = [food['name']]
+            del food['name']
+            print(food['location_id'])
+            location = get_location_by_id(cursor, (food['location_id'],))
+            print("LOCATION", location)
+            if location:
+                location_obj = Location()
+                location_obj.set_address(location['longitude'], location['latitude'])
+                food['location'] = location_obj
+            processed_res[food['id']] = food
+        else:
+            processed_res[food['id']]['food_types'].append(food['name'])
+
+    return list(processed_res.values())
+
+
+def get_foods_by_types(cursor, args):
+    types = args[0]
+    if len(types) == 0:
+        query = 'select * from food as f join food_types as ft join type as t ' \
+                'on f.id = ft.food_id and t.id = ft.type_id '
+        cursor.execute(query)
+        res = cursor.fetchall()
+    else:
+        types = ', '.join("'" + str(x).replace('/', '_') + "'" for x in tuple(types))
+        query = 'select * from food as f join food_types as ft join type as t ' \
+                'on f.id = ft.food_id and t.id = ft.type_id ' \
+                'where t.name in (' + types + ') '
+        cursor.execute(query)
+        res = cursor.fetchall()
+
+    return process_foods_types(cursor, res)
+
+
+def get_receiver_food_types_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "select * from receiver_types as rt join type as t on rt.type_id = t.id where rt.receiver_id = " + str(id)
+    cursor.execute(query)
+    res = cursor.fetchall()
+    res = [val['name'] for val in res]
+
+    return res
+
+
+def delete_receiver_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "delete from receiver as r where r.id = " + str(id)
+    cursor.execute(query)
+    connection.commit()
+
+
+def delete_donator_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "delete from donator as d where d.id = " + str(id)
+    cursor.execute(query)
+    connection.commit()
+
+
 def main_db(action, *args):
     try:
         with connection.cursor() as cursor:
@@ -123,6 +216,20 @@ def main_db(action, *args):
                 food_id = get_max_id('food')
                 for type_ in food_types:
                     add_food_type(cursor, (food_id, type_), 'food_types')
+            elif action == 'get_food_by_types':
+                return get_foods_by_types(cursor, args)
+            elif action == 'get_location_by_id':
+                return get_location_by_id(cursor, args)
+            elif action == 'get_receiver_by_id':
+                return get_receiver_by_id(cursor, args)
+            elif action == 'get_donator_by_id':
+                return get_donator_by_id(cursor, args)
+            elif action == 'get_receiver_food_types_by_id':
+                return get_receiver_food_types_by_id(cursor, args)
+            elif action == 'delete_receiver_by_id':
+                delete_receiver_by_id(cursor, args)
+            elif action == 'delete_donator_by_id':
+                delete_donator_by_id(cursor, args)
             else:
                 print("Invalid option")
     except Exception as err:
@@ -145,3 +252,14 @@ if __name__ == '__main__':
     main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 1, 'available': 1,
                          'number_of_servings': 2, 'expiration_date': 3, 'description': 'blabla',
                          'food_types': ['Halal', 'Kosher', 'Other']})
+    main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 2, 'available': 1,
+                         'number_of_servings': 3, 'expiration_date': 2, 'description': 'blabla',
+                         'food_types': ['Halal', 'Kosher', 'Other']})
+
+    main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 2, 'available': 1,
+                         'number_of_servings': 3, 'expiration_date': 2, 'description': 'blabla',
+                         'food_types': ['Vegan']})
+    res = main_db('get_food_by_types', ['Vegan'])
+    # print(res, len(res))
+    # print(main_db('get_location_by_id', 2))
+    # print(main_db('get_receiver_food_types_by_id', 2))

@@ -22,7 +22,7 @@ class Reciver():
         return self.food_types
 
     def get_relative_distance(self, other_location):
-        return geodesic(self.location, other_location).kilometers
+        return geodesic(self.location.get_address(), other_location.get_address()).kilometers
 
 # res = Reciver()
 # loc = location()
