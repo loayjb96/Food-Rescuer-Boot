@@ -10,6 +10,7 @@ class Donator:
         self.m_open_foods = ""
         self.m_food_being_built = Food()
         self.m_donation_counter = 1
+        self.user_name=None
 
     def set_location(self, location):
         self.m_location = location
