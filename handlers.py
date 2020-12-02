@@ -154,12 +154,15 @@ def handle_receiver_food_types(message, id_obj_map):
 def handle_receiver_food_types_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
-    if answer == 'Done':
+    print(answer)
+    if answer == 'Done' :
         add_recevier_to_db(id_obj_map[id])
-        # TODO: show relevant foods
+        handle_add_receiver_process_end(message)
         return
     id_obj_map[id].add_receiver_food(answer)
+
     send_get_message(id, f"{answer} added to your food list!")
+
 
 
 def add_donator_to_db(donator):
@@ -213,5 +216,29 @@ def add_recevier_to_db(receiver):
     main_db('add_receiver', receiver_to_db)
 
     send_get_message(id, f"You have been added to the DB!")
-    print("enter db")
-    print()
+
+
+def handle_add_receiver_process_end(message):
+    show_db = get_inline_buttons(['Show food', 'skip'])
+    data = {
+        "chat_id": message.get_id(),
+        "reply_markup": show_db
+    }
+    send_post_message(data.get('chat_id'), 'Show food', data)
+
+def handle_receiver_end_response(message,request,id_obj_map):
+    answer = request['callback_query']['data']
+    id = message.get_id()
+    if answer == 'Show food':
+        send_get_message(id, f"{answer} was pressed!")
+        show_food_list(id, id_obj_map[id])
+        # TODO: show relevant foods
+        return
+
+    if answer == 'skip':
+        send_get_message(id, f"{answer} was pressed!")
+
+
+def show_food_list(id,receiver):
+    food_list = main_db('get_food_by_types', receiver.food_types)
+
