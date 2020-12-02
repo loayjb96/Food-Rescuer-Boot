@@ -146,6 +146,20 @@ def get_receiver_by_id(cursor, args):
     return res[0]
 
 
+def get_photos_by_food_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+
+    query = 'select * from photo as p join food_photos as pt ' \
+            'on p.id = pt.photo_id ' \
+            'where pt.food_id = ' + id
+    cursor.execute(query)
+    res = cursor.fetchall()
+    if len(res) == 0:
+        return res
+
+    return [val['path'] for val in res]
+
+
 def get_donator_by_id(cursor, args):
     id = "\"" + str(args[0]).replace('/', '_') + "\""
     query = "select * from donator as d where d.id = " + str(id)
@@ -258,6 +272,8 @@ def main_db(action, *args):
                 add_photo(cursor, args, 'photo')
             elif action == 'add_food_photos':
                 add_food_photos(cursor, args, 'food_photos')
+            elif action == 'get_photos_by_food_id':
+                return get_photos_by_food_id(cursor, args)
             else:
                 print("Invalid option")
     except Exception as err:
@@ -265,29 +281,30 @@ def main_db(action, *args):
 
 
 if __name__ == '__main__':
-    main_db('add_location', {'id': '0', 'longitude': 34, 'latitude': 35})
-    main_db('add_location', {'id': '0', 'longitude': 35, 'latitude': 37})
-    main_db('add_location', {'id': '0', 'longitude': 36, 'latitude': 38})
-    main_db('add_location', {'id': '0', 'longitude': 37, 'latitude': 39})
-
-    main_db('add_receiver', {'id': 1, 'location_id': 1, 'food_types': ['Halal', 'Other']})
-    main_db('add_receiver', {'id': 2, 'location_id': 3, 'food_types': ['Kosher', 'Vegan']})
-    main_db('add_receiver', {'id': 3, 'location_id': 2, 'food_types': ['Halal']})
-
-    main_db('add_donator',
-            {'id': 1, 'user_name': 'donator1', 'location_id': 4, 'donation_count': 1, 'donation_level': 0.5})
-
-    main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 1, 'available': 1,
-                         'number_of_servings': 2, 'expiration_date': 3, 'description': 'blabla',
-                         'food_types': ['Halal', 'Kosher', 'Other']})
-    main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 2, 'available': 1,
-                         'number_of_servings': 3, 'expiration_date': 2, 'description': 'blabla',
-                         'food_types': ['Halal', 'Kosher', 'Other']})
-
-    main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 2, 'available': 1,
-                         'number_of_servings': 3, 'expiration_date': 2, 'description': 'blabla',
-                         'food_types': ['Vegan']})
-    res = main_db('get_food_by_types', ['Vegan'])
+    # main_db('add_location', {'id': '0', 'longitude': 34, 'latitude': 35})
+    # main_db('add_location', {'id': '0', 'longitude': 35, 'latitude': 37})
+    # main_db('add_location', {'id': '0', 'longitude': 36, 'latitude': 38})
+    # main_db('add_location', {'id': '0', 'longitude': 37, 'latitude': 39})
+    #
+    # main_db('add_receiver', {'id': 1, 'location_id': 1, 'food_types': ['Halal', 'Other']})
+    # main_db('add_receiver', {'id': 2, 'location_id': 3, 'food_types': ['Kosher', 'Vegan']})
+    # main_db('add_receiver', {'id': 3, 'location_id': 2, 'food_types': ['Halal']})
+    #
+    # main_db('add_donator',
+    #         {'id': 1, 'user_name': 'donator1', 'location_id': 4, 'donation_count': 1, 'donation_level': 0.5})
+    #
+    # main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 1, 'available': 1,
+    #                      'number_of_servings': 2, 'expiration_date': 3, 'description': 'blabla',
+    #                      'food_types': ['Halal', 'Kosher', 'Other']})
+    # main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 2, 'available': 1,
+    #                      'number_of_servings': 3, 'expiration_date': 2, 'description': 'blabla',
+    #                      'food_types': ['Halal', 'Kosher', 'Other']})
+    #
+    # main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 2, 'available': 1,
+    #                      'number_of_servings': 3, 'expiration_date': 2, 'description': 'blabla',
+    #                      'food_types': ['Vegan']})
+    # res = main_db('get_food_by_types', ['Vegan'])
     # print(res, len(res))
     # print(main_db('get_location_by_id', 2))
     # print(main_db('get_receiver_food_types_by_id', 2))
+    print(main_db('get_photos_by_food_id', 36))
