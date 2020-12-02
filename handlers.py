@@ -5,7 +5,7 @@ from location import Location
 from donator import Donator
 from datetime import datetime, timedelta, date
 from database import main_db, get_max_id
-# --------------------------
+
 
 # ---- donator or reciever
 
@@ -72,32 +72,15 @@ def handle_food_types(message, id_obj_map):
     DonatorId = message.get_id()
     currentMeal = id_obj_map[DonatorId].m_food_being_built
 
-
-   
-    signs_list = []
-    # print(signs_list)
-    # print("1")
-    # signs_list.append('✔')
-    # print(signs_list)
-    # print("2")
-    # signs_list.append('-')
-    # print(signs_list)
-    # print("3")
-    for food_type in food_type_options:
-        print(signs_list)
-        if food_type in currentMeal.m_food_types:
-            signs_list.append('✔')
-        else:
-            signs_list.append('-')
-
+    
     sign_list_2 = [( '✔' if (food_type in currentMeal.m_food_types) else  '-') for food_type in food_type_options]
 
-        
+    
     print("after adding")
 
     print(sign_list_2)
     print("created buttons")
-    servings_options = get_poll_buttons(food_type_options,  ['✔'] * 7)  #sign_list_2)
+    servings_options = get_poll_buttons(food_type_options, sign_list_2)  
     print("created buttons")
     data = {
         "chat_id": message.get_id(),
@@ -109,13 +92,24 @@ def handle_food_types(message, id_obj_map):
 def handle_food_types_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
+    print(answer + " was selected")
     if answer == 'Done':
         #add_recevier_to_db(id_obj_map[id])  todo: add adding food to DB
+        print("done selection")
         handle_experation_day(message, request, id_obj_map)
         return
-    id_obj_map[id].m_food_being_built.add_food_type(answer)
-    send_get_message(id, f"{answer} added !")
 
+    if answer != '✔' and answer != '-':
+        print("not signs")
+        if answer in id_obj_map[id].m_food_being_built.m_food_types:
+            print("already added")
+            id_obj_map[id].m_food_being_built.remove_food_type(answer)
+            send_get_message(id, f"{answer} removed !")
+        else:
+            print("not added before")
+            id_obj_map[id].m_food_being_built.add_food_type(answer)
+            send_get_message(id, f"{answer} added !")
+        handle_food_types(message, id_obj_map)
 
 # ---- experation date
 experation_day_options = ['Today only', '2 days', '3 days', 'frozen']
@@ -123,13 +117,17 @@ experation_day_options_values = [0, 1, 2, 30]
 
 
 def handle_experation_day(message, request, id_obj_map):
+    print("in experation day")
     servings_options = get_inline_buttons(experation_day_options)
+    print("created buttons")
     data = {
         "chat_id": message.get_id(),
         "reply_markup": servings_options
     }
+    print("going to send")
+    
     send_post_message(data.get('chat_id'), 'The food is good for?', data)
-
+    print("sent")
 
 def handle_experation_day_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
