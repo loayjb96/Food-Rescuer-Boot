@@ -41,16 +41,35 @@ def handle_choosing_user_type(message, request, id_obj_map):
     send_post_message(data.get('chat_id'), 'Are you a Donator or Receiver?', data)
 
 
+def get_receiver_by_id(id):
+    rec = main_db('get_receiver_by_id', id)
+    if not rec:
+        return None
+    else:
+        new_rec = Reciver()
+        new_rec.init_reciver_id(id)
+        location = main_db('get_location_by_id', rec['location_id'])
+        new_location = Location()
+        new_location.set_address(location['longitude'], location['latitude'])
+        new_rec.set_location(new_location)
+        new_rec.food_types = main_db('get_receiver_food_types_by_id', id)
+    return new_rec
+
+
 def handle_type_answer(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
 
     if answer == 'Receiver':
-        # TODO: get receiver from db
-        # if id not in id_obj_map:
-        rec = Reciver()
-        rec.init_reciver_id(message.get_id())
-        id_obj_map[message.get_id()] = rec
+        rec = get_receiver_by_id(id)
+        if not rec:
+            rec = Reciver()
+            rec.init_reciver_id(id)
+            id_obj_map[id] = rec
+        else:
+            pass
+            # TODO: ask him to edit or show foods
+
     elif answer == 'Donator':
         # TODO: get donator from db
         if id not in id_obj_map:
@@ -241,7 +260,6 @@ def handle_receiver_end_response(message, request, id_obj_map):
         send_get_message(id, f"{answer} was pressed!")
 
 
-
 # private func..
 def get_relative_distance_for_receiver(receiver, food_list):
     ids_distance = {}
@@ -256,7 +274,6 @@ def get_relative_distance_for_receiver(receiver, food_list):
 
 
 def show_food_list(chat_id, receiver):
-
     food_list = main_db('get_food_by_types', receiver.food_types)
     print("FOOD LIST", food_list)
     relative_distance = get_relative_distance_for_receiver(receiver, food_list)
@@ -266,13 +283,11 @@ def show_food_list(chat_id, receiver):
         item = food_list[id]
         number_of_servings = item['number_of_servings']
         food_types = ", ".join(item['food_types'])
+        user_name = '@kar2357'
         location = round(relative_distance[id], 5)
         print(location)
 
-        send_get_message(chat_id, box(id, number_of_servings,food_types,str(location)))
-
-
-
+        send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name))
 
     print(food_list)
     print('\n', relative_distance)
