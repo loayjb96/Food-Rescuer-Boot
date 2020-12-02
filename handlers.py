@@ -240,5 +240,4 @@ def handle_receiver_end_response(message,request,id_obj_map):
 
 
 def show_food_list(id,receiver):
-    food_list = main_db('get_food_by_types', receiver.food_types)
-
+    main_db('get_food_by_types', receiver.food_types)
