@@ -28,6 +28,7 @@ def add_donator_if_doesnt_exist(donator_id):
 
 
 def handle_choosing_user_type(message, request, id_obj_map):
+    print("HERE")
     user_types = get_inline_buttons(['Donator', 'Receiver'])
     data = {
         "chat_id": message.get_id(),
@@ -45,7 +46,9 @@ def get_receiver_by_id(id):
         new_rec.init_reciver_id(id)
         location = main_db('get_location_by_id', rec['location_id'])
         new_location = Location()
+
         new_location.set_address(location['longitude'], location['latitude'])
+        print("MY LOCATION IN GET", new_location)
         new_rec.set_location(new_location)
         new_rec.food_types = main_db('get_receiver_food_types_by_id', id)
     return new_rec
@@ -54,9 +57,11 @@ def get_receiver_by_id(id):
 def handle_type_answer(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
-
+    print("ENTERED HERE")
     if answer == 'Receiver':
+        print("REC")
         rec = get_receiver_by_id(id)
+        print("REC", rec)
         if not rec:
             rec = Reciver()
             rec.init_reciver_id(id)
@@ -66,13 +71,15 @@ def handle_type_answer(message, request, id_obj_map):
             handle_exciting_receiver_in_db(message, request, id_obj_map)
             return
     elif answer == 'Donator':
+        print("DONATOR")
         rec = Donator()
-        rec.user_name = message.get_user_name()
+        # print("REQUEST", request)
+        rec.user_name = request['callback_query']['from']['username']
         print(rec.user_name)
         rec.set_id(message.get_id())
         id_obj_map[message.get_id()] = rec
 
-        handle_location(message, request, id_obj_map)
+    handle_location(message, request, id_obj_map)
 
 
 # ----- location
@@ -92,7 +99,7 @@ def handle_location_response(message, request, id_obj_map):
     print("REQ", request)
     res_location = request.get('message').get('location')
     print("LOC", res_location)
-    location.set_address(res_location['latitude'], res_location['longitude'])
+    location.set_address(res_location['longitude'], res_location['latitude'])
     id_obj_map[message.get_id()].set_location(location)
     print("LOCATION", location)
     if type(id_obj_map[message.get_id()]) == Donator:
@@ -217,8 +224,7 @@ def handle_receiver_food_types(message, id_obj_map):
 
     sign_list_2 = [('✔' if (food_type in id_obj_map[reciverId].food_types) else '-') for food_type in food_type_options]
 
-    
-    servings_options = get_poll_buttons(food_type_options ,sign_list_2)
+    servings_options = get_poll_buttons(food_type_options, sign_list_2)
     data = {
         "chat_id": message.get_id(),
         "reply_markup": servings_options
@@ -230,16 +236,15 @@ def handle_receiver_food_types(message, id_obj_map):
 def handle_receiver_food_types_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
-    print(answer)
+    print(answer + " was selected")
     if answer == 'Done':
         add_recevier_to_db(id_obj_map[id])
         handle_add_receiver_process_end(message)
-
         return
 
     if answer != '✔' and answer != '-':
         print("not signs")
-        if answer in id_obj_map[id].m_food_being_built.m_food_types:
+        if answer in id_obj_map[id].food_types:
             print("already added")
             id_obj_map[id].remove_food_type(answer)
             send_get_message(id, f"{answer} removed !")
@@ -247,18 +252,14 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
             print("not added before")
             id_obj_map[id].add_food_type(answer)
             send_get_message(id, f"{answer} added !")
-        handle_food_types(message, id_obj_map)
-
-    id_obj_map[id].add_receiver_food(answer)
-    send_get_message(id, f"{answer} added to your food list!")
-    handle_receiver_food_types(message, id_obj_map)
-
+        handle_receiver_food_types(message, id_obj_map)
 
 
 def add_donator_to_db(donator):
     print("ADD DONATOR")
     id = donator.m_id
     user_name = donator.user_name
+    print("USER NAME", user_name)
     location = donator.m_location
     donation_count = donator.m_donation_counter
     donation_level = donator.m_donator_level
@@ -291,19 +292,17 @@ def add_donator_to_db(donator):
     send_get_message(id, f"You have added new MEAL!!")
 
 
-
 def add_recevier_to_db(receiver):
     id = receiver.telegram_id
     location = receiver.location
     food_types = receiver.food_types
+    print("FOOD TYPES", food_types)
     location_to_db = {'id': '0',
                       'longitude': location.longitude,
                       'latitude': location.latitude
                       }
 
-
     main_db('add_location', location_to_db)
-
 
     main_db('add_location', location_to_db)
 
@@ -318,6 +317,7 @@ def add_recevier_to_db(receiver):
     print("enter db")
     print()
 
+
 def handle_add_receiver_process_end(message):
     show_db = get_inline_buttons(['Show food', 'skip'])
     data = {
@@ -331,6 +331,7 @@ def handle_receiver_end_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
     if answer == 'Show food':
+        print("TYPES", id_obj_map[id].food_types)
         send_get_message(id, f"{answer} was pressed!")
         show_food_list(id, id_obj_map[id])
         return
@@ -362,7 +363,7 @@ def show_food_list(chat_id, receiver):
         donator = main_db('get_donator_by_id', item['donator_id'])
         number_of_servings = item['number_of_servings']
         food_types = ", ".join(item['food_types'])
-        user_name = '@'+donator['user_name']
+        user_name = '@' + donator['user_name']
         location = round(relative_distance[id], 5)
         print(location)
 

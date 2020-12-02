@@ -7,8 +7,8 @@ class Location():
         return self.longitude, self.latitude
 
     def set_address(self, x, y):
-        self.latitude = x
-        self.longitude = y
+        self.longitude = x
+        self.latitude = y
 
     def __str__(self):
         return f"({self.longitude}, {self.latitude})"
