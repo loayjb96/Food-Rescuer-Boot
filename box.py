@@ -5,7 +5,7 @@ AL, AR = '═', '>'
 
 
 def padded(
-    line, info=None, width=30, intro='>', outro='<', filler='.', chopped='..'
+        line, info=None, width=30, intro='>', outro='<', filler='.', chopped='..'
 ):
     # cleanup input
     line = ''.join([' ', line.strip()]) if line else ''
@@ -15,11 +15,11 @@ def padded(
     width -= sum([len(intro), len(outro), len(line), len(info)])
     if width < 0:
         # chop off overflowing text
-        line = line[:len(line)+width]
+        line = line[:len(line) + width]
         if chopped:
             # place chopped characters (if set)
             chopped = chopped.strip()
-            line = ' '.join([line[:len(line)-(len(chopped)+1)], chopped])
+            line = ' '.join([line[:len(line) - (len(chopped) + 1)], chopped])
 
     return ''.join(e for e in [
         intro,
@@ -30,13 +30,15 @@ def padded(
     ] if e)
 
 
-def box(food_id, servings, food_types, distance, *extras):
-    arrow = (AL+AR)
+def box(food_id, servings, food_types, distance, user_name, *extras):
+    arrow = (AL + AR)
     res = [
         # head line
         padded(
+
             'food no. {:03d} <'.format(food_id), (AL+AL+arrow),
             intro=UL, outro=' ', filler=' '
+
         ),
         # first line
         padded(
@@ -48,7 +50,11 @@ def box(food_id, servings, food_types, distance, *extras):
             intro=SL, outro=' ', filler=' '
         ),
         padded(
-            'Distance: '+ distance + 'Km', arrow,
+            'Contact: ' + user_name, arrow,
+            intro=SL, outro=' ', filler=' '
+        ),
+        padded(
+            'Distance: ' + distance + 'Km', arrow,
             intro=SL, outro=' ', filler=' '
         ),
 
@@ -59,7 +65,6 @@ def box(food_id, servings, food_types, distance, *extras):
     res.append(padded(None, None, intro=DL, outro=DR, filler=AL))
 
     return '\n'.join(res)
-
 
 # print(
 #     box(485, 3, 'Fumatori', 'Televisione')

@@ -112,6 +112,26 @@ def get_location_by_id(cursor, args):
     return res[0]
 
 
+def get_receiver_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "select * from receiver as r where r.id = " + str(id)
+    cursor.execute(query)
+    res = cursor.fetchall()
+    if len(res) == 0:
+        return None
+    return res[0]
+
+
+def get_donator_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "select * from donator as d where d.id = " + str(id)
+    cursor.execute(query)
+    res = cursor.fetchall()
+    if len(res) == 0:
+        return None
+    return res[0]
+
+
 def process_foods_types(cursor, res):
     processed_res = {}
     for food in res:
@@ -150,6 +170,16 @@ def get_foods_by_types(cursor, args):
     return process_foods_types(cursor, res)
 
 
+def get_receiver_food_types_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "select * from receiver_types as rt join type as t on rt.type_id = t.id where rt.receiver_id = " + str(id)
+    cursor.execute(query)
+    res = cursor.fetchall()
+    res = [val['name'] for val in res]
+
+    return res
+
+
 def main_db(action, *args):
     try:
         with connection.cursor() as cursor:
@@ -176,6 +206,12 @@ def main_db(action, *args):
                 return get_foods_by_types(cursor, args)
             elif action == 'get_location_by_id':
                 return get_location_by_id(cursor, args)
+            elif action == 'get_receiver_by_id':
+                return get_receiver_by_id(cursor, args)
+            elif action == 'get_donator_by_id':
+                return get_donator_by_id(cursor, args)
+            elif action == 'get_receiver_food_types_by_id':
+                return get_receiver_food_types_by_id(cursor, args)
             else:
                 print("Invalid option")
     except Exception as err:
@@ -205,6 +241,7 @@ if __name__ == '__main__':
     # main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 2, 'available': 1,
     #                      'number_of_servings': 3, 'expiration_date': 2, 'description': 'blabla',
     #                      'food_types': ['Vegan']})
-    res = main_db('get_food_by_types', ['Vegan'])
-    print(res, len(res))
+    # res = main_db('get_food_by_types', ['Vegan'])
+    # print(res, len(res))
     # print(main_db('get_location_by_id', 2))
+    print(main_db('get_receiver_food_types_by_id', 2))
