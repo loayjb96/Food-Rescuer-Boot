@@ -67,8 +67,6 @@ def handle_type_answer(message, request, id_obj_map):
             return
     elif answer == 'Donator':
         rec = Donator()
-        rec.user_name = message.get_user_name()
-        print(rec.user_name )
         rec.set_id(message.get_id())
         id_obj_map[message.get_id()] = rec
 
@@ -258,7 +256,6 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
 def add_donator_to_db(donator):
     print("ADD DONATOR")
     id = donator.m_id
-    user_name = donator.user_name
     location = donator.m_location
     donation_count = donator.m_donation_counter
     donation_level = donator.m_donator_level
@@ -270,7 +267,7 @@ def add_donator_to_db(donator):
 
     donator_to_db = {
         'id': id,
-        'user_name': user_name,
+        'user_name': 'null',
         'location_id': get_max_id('location'),
         'donation_count': donation_count,
         'donation_level': donation_level
@@ -353,17 +350,15 @@ def get_relative_distance_for_receiver(receiver, food_list):
 
 def show_food_list(chat_id, receiver):
     food_list = main_db('get_food_by_types', receiver.food_types)
-
     print("FOOD LIST", food_list, receiver)
     relative_distance = get_relative_distance_for_receiver(receiver, food_list)
     food_list = {food['id']: food for food in food_list}
 
     for id in relative_distance:
         item = food_list[id]
-        donator = main_db('get_donator_by_id',item['donator_id'] )
         number_of_servings = item['number_of_servings']
         food_types = ", ".join(item['food_types'])
-        user_name = '@'+donator['user_name']
+        user_name = '@kar2357'
         location = round(relative_distance[id], 5)
         print(location)
 
