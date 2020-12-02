@@ -5,6 +5,7 @@ from location import Location
 from donator import Donator
 from datetime import datetime, timedelta, date
 from database import main_db, get_max_id
+from box import box
 
 # this needs to be removed
 donators = []
@@ -245,6 +246,7 @@ def handle_receiver_end_response(message, request, id_obj_map):
 def get_relative_distance_for_receiver(receiver, food_list):
     ids_distance = {}
     for food in food_list:
+        # print("LOCATION", food['location'])
         if food['id'] in ids_distance:
             ids_distance[food['id']] = min(ids_distance[food['id']],
                                            receiver.get_relative_distance(food['location'].get_address()))
@@ -253,8 +255,24 @@ def get_relative_distance_for_receiver(receiver, food_list):
     return dict(sorted(ids_distance.items(), key=lambda item: item[1]))
 
 
-def show_food_list(id, receiver):
+def show_food_list(chat_id, receiver):
+
     food_list = main_db('get_food_by_types', receiver.food_types)
+    print("FOOD LIST", food_list)
     relative_distance = get_relative_distance_for_receiver(receiver, food_list)
+    food_list = {food['id']: food for food in food_list}
+
+    for id in relative_distance:
+        item = food_list[id]
+        number_of_servings = item['number_of_servings']
+        food_types = ", ".join(item['food_types'])
+        location = round(relative_distance[id], 5)
+        print(location)
+
+        send_get_message(chat_id, box(id, number_of_servings,food_types,str(location)))
 
 
+
+
+    print(food_list)
+    print('\n', relative_distance)

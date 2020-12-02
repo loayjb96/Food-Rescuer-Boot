@@ -5,7 +5,7 @@ AL, AR = '═', '>'
 
 
 def padded(
-    line, info=None, width=99, intro='>', outro='<', filler='.', chopped='..'
+    line, info=None, width=30, intro='>', outro='<', filler='.', chopped='..'
 ):
     # cleanup input
     line = ''.join([' ', line.strip()]) if line else ''
@@ -30,19 +30,28 @@ def padded(
     ] if e)
 
 
-def box(rnum, nbeds, *extras):
+def box(food_id, servings, food_types, distance, *extras):
     arrow = (AL+AR)
     res = [
         # head line
         padded(
-            'Stanza n. {:03d} <'.format(rnum), (AL+AL+arrow),
+            'food no. {:03d} <'.format(food_id), (AL+AL+arrow),
             intro=UL, outro=UR, filler=AL
         ),
         # first line
         padded(
-            'Num letti: {:3d}'.format(nbeds), arrow,
-            intro=SL, outro=SR, filler=' '
+            'Number of servings: {:3d}'.format(servings), arrow,
+            intro=SL, outro=' ', filler=' '
         ),
+        padded(
+            'food types. ' + food_types, arrow,
+            intro=SL, outro=' ', filler=' '
+        ),
+        padded(
+            'Distance: '+ distance + 'Km', arrow,
+            intro=SL, outro=' ', filler=' '
+        ),
+
     ]
     # following lines
     res.extend(padded(e, arrow, intro=SL, outro=SR, filler=' ') for e in extras)

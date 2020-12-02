@@ -120,6 +120,7 @@ def process_foods_types(cursor, res):
             del food['name']
             print(food['location_id'])
             location = get_location_by_id(cursor, (food['location_id'],))
+            print("LOCATION", location)
             if location:
                 location_obj = Location()
                 location_obj.set_address(location['longitude'], location['latitude'])
@@ -142,8 +143,7 @@ def get_foods_by_types(cursor, args):
         types = ', '.join("'" + str(x).replace('/', '_') + "'" for x in tuple(types))
         query = 'select * from food as f join food_types as ft join type as t ' \
                 'on f.id = ft.food_id and t.id = ft.type_id ' \
-                'where t.name in (' + types + ') ' \
-                                              'group by f.id'
+                'where t.name in (' + types + ') '
         cursor.execute(query)
         res = cursor.fetchall()
 
