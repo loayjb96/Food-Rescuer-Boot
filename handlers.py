@@ -213,6 +213,19 @@ def handle_num_of_servings_response(message, request, id_obj_map):
         if option == answer:
             id_obj_map[id].m_food_being_built.set_number_of_servings(serving_size_options_values[i])
         i += 1
+    add_donaitor_description(message, request, id_obj_map)
+
+
+def add_donaitor_description(message, request, id_obj_map):
+    id = message.get_id()
+    send_get_message(id, "please write a meal description")
+
+def handle_add_donaitor_description(message, request, id_obj_map):
+
+    answer = request.get('message')['text']
+    id = message.get_id()
+    print(answer)
+    id_obj_map[id].m_food_being_built.m_description = answer
     add_donator_to_db(id_obj_map[id])
 
 
@@ -289,7 +302,8 @@ def add_donator_to_db(donator):
     }
     print("FOOD TO DB", food_to_db)
     main_db('add_food', food_to_db)
-    send_get_message(id, f"You have added new MEAL!!")
+    send_get_message(id, "You have added new MEAL!!")
+
 
 
 def add_recevier_to_db(receiver):
@@ -365,9 +379,10 @@ def show_food_list(chat_id, receiver):
         food_types = ", ".join(item['food_types'])
         user_name = '@' + donator['user_name']
         location = round(relative_distance[id], 5)
+        des = item['description']
         print(location)
 
-        send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name))
+        send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name, des))
 
 
 def handle_exciting_receiver_in_db(message, request, id_obj_map):

@@ -45,7 +45,14 @@ class Bot:
         try:
             # print("REQ")
             for key in request:
-                print(key, ":", request[key])
+                # print(key, ":", request[key])
+                if key == 'message':
+                    temp=request[key]
+                    if(temp.get('text') and temp.get('text')!= '/start' and temp.get('text')!= 'Done'):
+                        curr_msg = Message(request.get('message'))
+                        handlers.handle_add_donaitor_description(curr_msg,request,self.id_obj_map)
+
+
             # for key in request.get('callback_query'):
             #     print(key, request.get('callback_query')[key])
             if 'message' in request:
@@ -60,14 +67,7 @@ class Bot:
             action = curr_msg.get_action()
             print("ACTION", action)
             self.handlers.get(action)(curr_msg, request, self.id_obj_map)
-            # print('after function')
-            # if action == '/location':
-            #     data = {"chat_id": curr_msg.get_id(),
-            #             "text": "TEST",
-            #             "reply_markup": message}
-            #     send_post_message(curr_msg.get_id(), 'location', data)
-            # else:
-            #     send_message(curr_msg.get_id(), message)
+
         except Exception as e:
             pass
 
@@ -89,4 +89,6 @@ def get_bot():
 
     bot.add_handler('Show food', handlers.handle_receiver_end_response)
     bot.add_handler('what would you like to do?', handlers.handle_exciting_receiver_in_db_responce)
+    bot.add_handler('You have added new MEAL!!', handlers.handle_exciting_receiver_in_db_responce)
+    bot.add_handler('please write a meal description', handlers.handle_add_donaitor_description)
     return bot
