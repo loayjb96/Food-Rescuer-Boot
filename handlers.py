@@ -67,9 +67,9 @@ def handle_type_answer(message, request, id_obj_map):
             rec.init_reciver_id(id)
             id_obj_map[id] = rec
         else:
-            pass
-            # TODO: ask him to edit or show foods
-
+            id_obj_map[id] = rec
+            handle_exciting_receiver_in_db(message, request, id_obj_map)
+            return
     elif answer == 'Donator':
         # TODO: get donator from db
         if id not in id_obj_map:
@@ -93,14 +93,18 @@ def handle_location(message, request, id_obj_map):
 
 
 def handle_location_response(message, request, id_obj_map):
+    print("ENTERED LOCATION")
     location = Location()
+    print("REQ", request)
     res_location = request.get('message').get('location')
+    print("LOC", res_location)
     location.set_address(res_location['latitude'], res_location['longitude'])
     id_obj_map[message.get_id()].set_location(location)
-
+    print("LOCATION", location)
     if type(id_obj_map[message.get_id()]) == Donator:
         handle_experation_day(message, request, id_obj_map)
     elif type(id_obj_map[message.get_id()]) == Reciver:
+        print("ENTERED RECEIVER")
         handle_receiver_food_types(message, id_obj_map)
 
 
@@ -253,7 +257,6 @@ def handle_receiver_end_response(message, request, id_obj_map):
     if answer == 'Show food':
         send_get_message(id, f"{answer} was pressed!")
         show_food_list(id, id_obj_map[id])
-        # TODO: show relevant foods
         return
 
     if answer == 'skip':
@@ -264,7 +267,7 @@ def handle_receiver_end_response(message, request, id_obj_map):
 def get_relative_distance_for_receiver(receiver, food_list):
     ids_distance = {}
     for food in food_list:
-        # print("LOCATION", food['location'])
+        print("LOCATION REL", food['location'])
         if food['id'] in ids_distance:
             ids_distance[food['id']] = min(ids_distance[food['id']],
                                            receiver.get_relative_distance(food['location'].get_address()))
@@ -287,8 +290,7 @@ def show_food_list(chat_id, receiver):
         location = round(relative_distance[id], 5)
         print(location)
 
-
-        send_get_message(chat_id, box(id, number_of_servings,food_types,str(location)))
+        send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name))
 
 
 def handle_exciting_receiver_in_db(message, request, id_obj_map):
@@ -299,15 +301,19 @@ def handle_exciting_receiver_in_db(message, request, id_obj_map):
     }
     send_post_message(data.get('chat_id'), 'what would you like to do?', data)
 
+
 def handle_exciting_receiver_in_db_responce(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
     if answer == 'Show food':
         send_get_message(id, f"{answer} was pressed!")
+        print(id, id_obj_map)
         show_food_list(id, id_obj_map[id])
-        return
-
-    if answer == 'Edit Profile':
-        send_get_message(id, f"{answer} was pressed!")
-
-
+    elif answer == 'Edit Profile':
+        main_db('delete_receiver_by_id', id)
+        del id_obj_map[id]
+        rec = Reciver()
+        rec.init_reciver_id(id)
+        id_obj_map[id] = rec
+        handle_location(message, request, id_obj_map)
+        # send_get_message(id, f"{answer} was pressed!")
