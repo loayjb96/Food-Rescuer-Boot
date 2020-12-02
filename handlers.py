@@ -272,7 +272,23 @@ def show_food_list(chat_id, receiver):
         send_get_message(chat_id, box(id, number_of_servings,food_types,str(location)))
 
 
+def handle_exciting_receiver_in_db(message, request, id_obj_map):
+    user_types = get_inline_buttons(['Show food', 'Edit Profile'])
+    data = {
+        "chat_id": message.get_id(),
+        "reply_markup": user_types
+    }
+    send_post_message(data.get('chat_id'), 'what would you like to do?', data)
+
+def handle_exciting_receiver_in_db_responce(message, request, id_obj_map):
+    answer = request['callback_query']['data']
+    id = message.get_id()
+    if answer == 'Show food':
+        send_get_message(id, f"{answer} was pressed!")
+        show_food_list(id, id_obj_map[id])
+        return
+
+    if answer == 'Edit Profile':
+        send_get_message(id, f"{answer} was pressed!")
 
 
-    print(food_list)
-    print('\n', relative_distance)

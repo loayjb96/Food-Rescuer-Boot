@@ -88,4 +88,5 @@ def get_bot():
 
     bot.add_handler('choose your food type', handlers.handle_receiver_food_types_response)
     bot.add_handler('Show food', handlers.handle_receiver_end_response)
+    bot.add_handler('what would you like to do?', handlers.handle_exciting_receiver_in_db_responce)
     return bot

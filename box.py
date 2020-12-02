@@ -36,7 +36,7 @@ def box(food_id, servings, food_types, distance, *extras):
         # head line
         padded(
             'food no. {:03d} <'.format(food_id), (AL+AL+arrow),
-            intro=UL, outro=UR, filler=AL
+            intro=UL, outro=' ', filler=' '
         ),
         # first line
         padded(
