@@ -3,14 +3,14 @@ from config import DB_PASSWORD
 from FoodTypes import *
 from location import Location
 
-# connection = pymysql.connect(
-#     host='localhost',
-#     user='root',
-#     password=DB_PASSWORD,
-#     db='food_rescuer',
-#     charset='utf8',
-#     cursorclass=pymysql.cursors.DictCursor
-# )
+connection = pymysql.connect(
+    host='localhost',
+    user='root',
+    password=DB_PASSWORD,
+    db='food_rescuer',
+    charset='utf8',
+    cursorclass=pymysql.cursors.DictCursor
+)
 
 
 def add_donator(cursor, args, table_name):
