@@ -2,7 +2,6 @@ from message import *
 import handlers
 
 
-
 class Bot:
     def __init__(self):
         self.flow_graph = {}
@@ -49,15 +48,21 @@ class Bot:
             # print("PHOTO", photo, type(photo), type(photo[-1]))
             # get_photo_from_file_path(photo[-1]['file_id'])
 
-            for key in request:
-                print(key, ":", request[key])
-            # for key in request.get('callback_query'):
-            #     print(key, request.get('callback_query')[key])
+            # for key in request:
+            #     # print(key, ":", request[key])
+            #     if key == 'message':
+            #         temp = request[key]
+            #
+
             if 'message' in request:
-                if 'location' in request.get('message'):
+                message = request.get('message')
+                if 'location' in message:
                     curr_msg = Message({'text': 'location response', 'chat': request.get('message').get('chat')})
-                elif 'photo' in request.get('message'):
+                elif 'photo' in message:
                     curr_msg = Message({'text': 'add photo response', 'chat': request.get('message').get('chat')})
+                elif message.get('text') != 'DONE' and message.get('text') != '/start':
+                    curr_msg = Message(request.get('message'))
+                    handlers.handle_add_donaitor_description(curr_msg, request, self.id_obj_map)
                 else:
                     curr_msg = Message(request.get('message'))
             else:
@@ -67,14 +72,7 @@ class Bot:
             action = curr_msg.get_action()
             print("ACTION", action)
             self.handlers.get(action)(curr_msg, request, self.id_obj_map)
-            # print('after function')
-            # if action == '/location':
-            #     data = {"chat_id": curr_msg.get_id(),
-            #             "text": "TEST",
-            #             "reply_markup": message}
-            #     send_post_message(curr_msg.get_id(), 'location', data)
-            # else:
-            #     send_message(curr_msg.get_id(), message)
+
         except Exception as e:
             pass
 
@@ -100,5 +98,8 @@ def get_bot():
     bot.add_handler('Do you want to add some photos?', handlers.handle_add_photos_response)
     bot.add_handler('add photo response', handlers.handle_photo_response)
     bot.add_handler('Done', handlers.handle_add_photos_done)
+
+    # bot.add_handler('You have added new MEAL!!', handlers.handle_exciting_receiver_in_db_responce)
+    bot.add_handler('please write a meal description', handlers.handle_add_donaitor_description)
 
     return bot
