@@ -1,6 +1,7 @@
 import pymysql
 from config import DB_PASSWORD
 from FoodTypes import *
+from location import Location
 
 connection = pymysql.connect(
     host='localhost',
@@ -101,6 +102,54 @@ def add_receiver_food_type(cursor, args, table_name):
         print("Error while adding new receiver food type", e)
 
 
+def get_location_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "select * from location as l where l.id = " + str(id)
+    cursor.execute(query)
+    res = cursor.fetchall()
+    if len(res) == 0:
+        return None
+    return res[0]
+
+
+def process_foods_types(cursor, res):
+    processed_res = {}
+    for food in res:
+        if food['id'] not in processed_res:
+            food['food_types'] = [food['name']]
+            del food['name']
+            print(food['location_id'])
+            location = get_location_by_id(cursor, (food['location_id'],))
+            if location:
+                location_obj = Location()
+                location_obj.set_address(location['longitude'], location['latitude'])
+                food['location'] = location_obj
+            processed_res[food['id']] = food
+        else:
+            processed_res[food['id']]['food_types'].append(food['name'])
+
+    return list(processed_res.values())
+
+
+def get_foods_by_types(cursor, args):
+    types = args[0]
+    if len(types) == 0:
+        query = 'select * from food as f join food_types as ft join type as t ' \
+                'on f.id = ft.food_id and t.id = ft.type_id '
+        cursor.execute(query)
+        res = cursor.fetchall()
+    else:
+        types = ', '.join("'" + str(x).replace('/', '_') + "'" for x in tuple(types))
+        query = 'select * from food as f join food_types as ft join type as t ' \
+                'on f.id = ft.food_id and t.id = ft.type_id ' \
+                'where t.name in (' + types + ') ' \
+                                              'group by f.id'
+        cursor.execute(query)
+        res = cursor.fetchall()
+
+    return process_foods_types(cursor, res)
+
+
 def main_db(action, *args):
     try:
         with connection.cursor() as cursor:
@@ -123,6 +172,10 @@ def main_db(action, *args):
                 food_id = get_max_id('food')
                 for type_ in food_types:
                     add_food_type(cursor, (food_id, type_), 'food_types')
+            elif action == 'get_food_by_types':
+                return get_foods_by_types(cursor, args)
+            elif action == 'get_location_by_id':
+                return get_location_by_id(cursor, args)
             else:
                 print("Invalid option")
     except Exception as err:
@@ -130,18 +183,28 @@ def main_db(action, *args):
 
 
 if __name__ == '__main__':
-    main_db('add_location', {'id': '0', 'longitude': 34, 'latitude': 35})
-    main_db('add_location', {'id': '0', 'longitude': 35, 'latitude': 37})
-    main_db('add_location', {'id': '0', 'longitude': 36, 'latitude': 38})
-    main_db('add_location', {'id': '0', 'longitude': 37, 'latitude': 39})
-
-    main_db('add_receiver', {'id': 1, 'location_id': 1, 'food_types': ['Halal', 'Other']})
-    main_db('add_receiver', {'id': 2, 'location_id': 3, 'food_types': ['Kosher', 'Vegan']})
-    main_db('add_receiver', {'id': 3, 'location_id': 2, 'food_types': ['Halal']})
-
-    main_db('add_donator',
-            {'id': 1, 'user_name': 'donator1', 'location_id': 4, 'donation_count': 1, 'donation_level': 0.5})
-
-    main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 1, 'available': 1,
-                         'number_of_servings': 2, 'expiration_date': 3, 'description': 'blabla',
-                         'food_types': ['Halal', 'Kosher', 'Other']})
+    # main_db('add_location', {'id': '0', 'longitude': 34, 'latitude': 35})
+    # main_db('add_location', {'id': '0', 'longitude': 35, 'latitude': 37})
+    # main_db('add_location', {'id': '0', 'longitude': 36, 'latitude': 38})
+    # main_db('add_location', {'id': '0', 'longitude': 37, 'latitude': 39})
+    #
+    # main_db('add_receiver', {'id': 1, 'location_id': 1, 'food_types': ['Halal', 'Other']})
+    # main_db('add_receiver', {'id': 2, 'location_id': 3, 'food_types': ['Kosher', 'Vegan']})
+    # main_db('add_receiver', {'id': 3, 'location_id': 2, 'food_types': ['Halal']})
+    #
+    # main_db('add_donator',
+    #         {'id': 1, 'user_name': 'donator1', 'location_id': 4, 'donation_count': 1, 'donation_level': 0.5})
+    #
+    # main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 1, 'available': 1,
+    #                      'number_of_servings': 2, 'expiration_date': 3, 'description': 'blabla',
+    #                      'food_types': ['Halal', 'Kosher', 'Other']})
+    # main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 2, 'available': 1,
+    #                      'number_of_servings': 3, 'expiration_date': 2, 'description': 'blabla',
+    #                      'food_types': ['Halal', 'Kosher', 'Other']})
+    #
+    # main_db('add_food', {'id': '0', 'donator_id': 1, 'location_id': 2, 'available': 1,
+    #                      'number_of_servings': 3, 'expiration_date': 2, 'description': 'blabla',
+    #                      'food_types': ['Vegan']})
+    res = main_db('get_food_by_types', ['Vegan'])
+    print(res, len(res))
+    # print(main_db('get_location_by_id', 2))

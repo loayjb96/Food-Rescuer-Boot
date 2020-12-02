@@ -45,12 +45,13 @@ def handle_type_answer(message, request, id_obj_map):
     id = message.get_id()
 
     if answer == 'Receiver':
-        if id not in id_obj_map:
-            rec = Reciver()
-            rec.init_reciver_id(message.get_id())
-            id_obj_map[message.get_id()] = rec
+        # TODO: get receiver from db
+        # if id not in id_obj_map:
+        rec = Reciver()
+        rec.init_reciver_id(message.get_id())
+        id_obj_map[message.get_id()] = rec
     elif answer == 'Donator':
-        print("were in donator")
+        # TODO: get donator from db
         if id not in id_obj_map:
             print("id was not found creating new")
             rec = Donator()
@@ -155,14 +156,13 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
     print(answer)
-    if answer == 'Done' :
+    if answer == 'Done':
         add_recevier_to_db(id_obj_map[id])
         handle_add_receiver_process_end(message)
         return
     id_obj_map[id].add_receiver_food(answer)
 
     send_get_message(id, f"{answer} added to your food list!")
-
 
 
 def add_donator_to_db(donator):
@@ -226,7 +226,8 @@ def handle_add_receiver_process_end(message):
     }
     send_post_message(data.get('chat_id'), 'Show food', data)
 
-def handle_receiver_end_response(message,request,id_obj_map):
+
+def handle_receiver_end_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
     if answer == 'Show food':
@@ -239,5 +240,21 @@ def handle_receiver_end_response(message,request,id_obj_map):
         send_get_message(id, f"{answer} was pressed!")
 
 
-def show_food_list(id,receiver):
-    main_db('get_food_by_types', receiver.food_types)
+
+# private func..
+def get_relative_distance_for_receiver(receiver, food_list):
+    ids_distance = {}
+    for food in food_list:
+        if food['id'] in ids_distance:
+            ids_distance[food['id']] = min(ids_distance[food['id']],
+                                           receiver.get_relative_distance(food['location'].get_address()))
+        else:
+            ids_distance[food['id']] = receiver.get_relative_distance(food['location'])
+    return dict(sorted(ids_distance.items(), key=lambda item: item[1]))
+
+
+def show_food_list(id, receiver):
+    food_list = main_db('get_food_by_types', receiver.food_types)
+    relative_distance = get_relative_distance_for_receiver(receiver, food_list)
+
+
