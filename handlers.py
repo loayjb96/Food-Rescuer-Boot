@@ -71,8 +71,8 @@ def handle_type_answer(message, request, id_obj_map):
         rec = Donator()
         rec.set_id(message.get_id())
         id_obj_map[message.get_id()] = rec
-    print("in handle type answer   :" + answer)
-    handle_location(message, request, id_obj_map)
+
+        handle_location(message, request, id_obj_map)
 
 
 # ----- location
@@ -109,7 +109,6 @@ def handle_food_types(message, id_obj_map):
     print("HANDLE FOOD type for a specific meal")
     DonatorId = message.get_id()
     currentMeal = id_obj_map[DonatorId].m_food_being_built
-
     sign_list_2 = [('✔' if (food_type in currentMeal.m_food_types) else '-') for food_type in food_type_options]
 
     print("after adding")
@@ -213,8 +212,13 @@ def handle_num_of_servings_response(message, request, id_obj_map):
 # ----------- handle food for client
 def handle_receiver_food_types(message, id_obj_map):
     print("HANDLE FOOD  for reciever")
-    servings_options = get_poll_buttons(['Halal', 'Kosher', 'Vegetarian', 'Vegan', 'Animals', 'Other', 'Done'],
-                                        ['✔'] * 7)
+    food_type_options = ['Halal', 'Kosher', 'Vegetarian', 'Vegan', 'Animals', 'Other', 'Done']
+    reciverId = message.get_id()
+
+    sign_list_2 = [('✔' if (food_type in id_obj_map[reciverId].food_types) else '-') for food_type in food_type_options]
+
+    
+    servings_options = get_poll_buttons(food_type_options ,sign_list_2)
     data = {
         "chat_id": message.get_id(),
         "reply_markup": servings_options
@@ -231,8 +235,22 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
         add_recevier_to_db(id_obj_map[id])
         handle_add_receiver_process_end(message)
         return
+
+    if answer != '✔' and answer != '-':
+        print("not signs")
+        if answer in id_obj_map[id].m_food_being_built.m_food_types:
+            print("already added")
+            id_obj_map[id].remove_food_type(answer)
+            send_get_message(id, f"{answer} removed !")
+        else:
+            print("not added before")
+            id_obj_map[id].add_food_type(answer)
+            send_get_message(id, f"{answer} added !")
+        handle_food_types(message, id_obj_map)
+
     id_obj_map[id].add_receiver_food(answer)
     send_get_message(id, f"{answer} added to your food list!")
+    handle_receiver_food_types(message, id_obj_map)
 
 
 def add_donator_to_db(donator):
