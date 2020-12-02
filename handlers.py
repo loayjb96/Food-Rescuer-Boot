@@ -5,28 +5,7 @@ from location import Location
 from donator import Donator
 from datetime import datetime, timedelta, date
 from database import main_db, get_max_id
-
-# this needs to be removed
-donators = []
-
-
-def get_donator_by_id(donator_id):
-    for don in donators:
-        if don.m_id == donator_id:
-            return don
-    return None
-
-
-def add_donator_if_doesnt_exist(donator_id):
-    if get_donator_by_id(donator_id) == None:
-        donator_to_add = Donator()
-        donator_to_add.m_id = donator_id
-        donators.append(Donator)
-        return get_donator_by_id(donator_id)
-
-
 # --------------------------
-
 
 # ---- donator or reciever
 
@@ -78,9 +57,64 @@ def handle_location_response(message, request, id_obj_map):
     id_obj_map[message.get_id()].set_location(location)
 
     if type(id_obj_map[message.get_id()]) == Donator:
-        handle_experation_day(message, request, id_obj_map)
+        handle_food_types(message, id_obj_map)
     elif type(id_obj_map[message.get_id()]) == Reciver:
         handle_receiver_food_types(message, id_obj_map)
+
+
+
+
+#-----------------handle food  typr for donator
+
+def handle_food_types(message, id_obj_map):
+    food_type_options = ['Halal', 'Kosher', 'Vegetarian', 'Vegan', 'Animals', 'Other', 'Done']
+    print("HANDLE FOOD type for a specific meal")
+    DonatorId = message.get_id()
+    currentMeal = id_obj_map[DonatorId].m_food_being_built
+
+
+   
+    signs_list = []
+    # print(signs_list)
+    # print("1")
+    # signs_list.append('✔')
+    # print(signs_list)
+    # print("2")
+    # signs_list.append('-')
+    # print(signs_list)
+    # print("3")
+    for food_type in food_type_options:
+        print(signs_list)
+        if food_type in currentMeal.m_food_types:
+            signs_list.append('✔')
+        else:
+            signs_list.append('-')
+
+    sign_list_2 = [( '✔' if (food_type in currentMeal.m_food_types) else  '-') for food_type in food_type_options]
+
+        
+    print("after adding")
+
+    print(signs_list)
+    print("created buttons")
+    servings_options = get_poll_buttons(food_type_options,get_correct_type_button_signs())
+    print("created buttons")
+    data = {
+        "chat_id": message.get_id(),
+        "reply_markup": servings_options
+    }
+    send_post_message(data.get('chat_id'), 'added to meal type', data)
+
+
+def handle_food_types_response(message, request, id_obj_map):
+    answer = request['callback_query']['data']
+    id = message.get_id()
+    if answer == 'Done':
+        #add_recevier_to_db(id_obj_map[id])  todo: add adding food to DB
+        handle_experation_day(message, request, id_obj_map)
+        return
+    id_obj_map[id].m_food_being_built.add_food_type(answer)
+    send_get_message(id, f"{answer} added !")
 
 
 # ---- experation date
@@ -163,27 +197,6 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
     send_get_message(id, f"{answer} added to your food list!")
 
 
-#-----------------handle food 
-def handle_food_types(message, id_obj_map):
-    print("HANDLE FOOD type for a specific meal")
-    servings_options = get_poll_buttons(['Halal', 'Kosher', 'Vegetarian', 'Vegan', 'Animals', 'Other', 'Done'],
-                                        ['✔'] * 7)
-    data = {
-        "chat_id": message.get_id(),
-        "reply_markup": servings_options
-    }
-    send_post_message(data.get('chat_id'), 'added to meal type', data)
-
-
-def handle_food_types_response(message, request, id_obj_map):
-    answer = request['callback_query']['data']
-    id = message.get_id()
-    if answer == 'Done':
-        #add_recevier_to_db(id_obj_map[id])  todo: add adding food to DB
-        handle_experation_day(message, request, id_obj_map)
-        return
-    id_obj_map[id].m_food_being_built.add_food_type(answer)
-    send_get_message(id, f"{answer} added !")
 
 
 #--------------
@@ -199,12 +212,12 @@ def add_recevier_to_db(receiver):
                       'latitude': location.latitude
                       }
 
-    main_db('add_location', location_to_db)
+   # main_db('add_location', location_to_db)
     receiver_to_db = {'id': id,
                       'location_id': get_max_id('location'),
                       'food_types': food_types}
 
-    main_db('add_receiver', receiver_to_db)
+   # main_db('add_receiver', receiver_to_db)
 
     send_get_message(id, f"You have been added to the DB!")
     print("enter db")

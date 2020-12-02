@@ -87,4 +87,7 @@ def get_bot():
     bot.add_handler('How many people is the meal for?', handlers.handle_num_of_servings_response)
 
     bot.add_handler('choose your food type', handlers.handle_receiver_food_types_response)
+    bot.add_handler('added to meal type', handlers.handle_food_types_response)
+    
+    
     return bot
