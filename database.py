@@ -1,6 +1,7 @@
 import pymysql
 from config import DB_PASSWORD
 from FoodTypes import *
+from location import Location
 
 connection = pymysql.connect(
     host='localhost',
@@ -101,12 +102,28 @@ def add_receiver_food_type(cursor, args, table_name):
         print("Error while adding new receiver food type", e)
 
 
-def process_foods_types(res):
+def get_location_by_id(cursor, args):
+    id = "\"" + str(args[0]).replace('/', '_') + "\""
+    query = "select * from location as l where l.id = " + str(id)
+    cursor.execute(query)
+    res = cursor.fetchall()
+    if len(res) == 0:
+        return None
+    return res[0]
+
+
+def process_foods_types(cursor, res):
     processed_res = {}
     for food in res:
         if food['id'] not in processed_res:
             food['food_types'] = [food['name']]
             del food['name']
+            print(food['location_id'])
+            location = get_location_by_id(cursor, (food['location_id'],))
+            if location:
+                location_obj = Location()
+                location_obj.set_address(location['longitude'], location['latitude'])
+                food['location'] = location_obj
             processed_res[food['id']] = food
         else:
             processed_res[food['id']]['food_types'].append(food['name'])
@@ -130,7 +147,7 @@ def get_foods_by_types(cursor, args):
         cursor.execute(query)
         res = cursor.fetchall()
 
-    return process_foods_types(res)
+    return process_foods_types(cursor, res)
 
 
 def main_db(action, *args):
@@ -157,6 +174,8 @@ def main_db(action, *args):
                     add_food_type(cursor, (food_id, type_), 'food_types')
             elif action == 'get_food_by_types':
                 return get_foods_by_types(cursor, args)
+            elif action == 'get_location_by_id':
+                return get_location_by_id(cursor, args)
             else:
                 print("Invalid option")
     except Exception as err:
@@ -188,3 +207,4 @@ if __name__ == '__main__':
     #                      'food_types': ['Vegan']})
     res = main_db('get_food_by_types', ['Vegan'])
     print(res, len(res))
+    # print(main_db('get_location_by_id', 2))
