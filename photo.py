@@ -17,5 +17,5 @@ def save_photo_by_path(file_id, dir_path):
     file_path = file_path.replace("\\", '-')
     full_path = dir_path + file_path
     print("PATH", full_path)
-    urllib.request.urlretrieve(url, full_path)
+    # urllib.request.urlretrieve(url, full_path)
     return full_path

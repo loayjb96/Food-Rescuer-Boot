@@ -340,6 +340,7 @@ def add_donator_to_db(donator):
         for photo_id in donator.photos:
             dir_path = f"Food{food_id}-"
             photo_path = save_photo_by_path(photo_id, dir_path)
+            print("PATH", photo_path)
             main_db('add_photo', {'id': '0', 'path': photo_path})
             photo_db_id = get_max_id('photo')
             main_db('add_food_photos', {'id': '0', 'food_id': food_id, 'photo_id': photo_db_id})
@@ -416,15 +417,19 @@ def show_food_list(chat_id, receiver):
 
     for id in relative_distance:
         item = food_list[id]
+        photos = main_db('get_photos_by_food_id',item.get('food_id'))
         donator = main_db('get_donator_by_id', item['donator_id'])
         number_of_servings = item['number_of_servings']
         food_types = ", ".join(item['food_types'])
         user_name = '@' + donator['user_name']
         location = round(relative_distance[id], 5)
         des = item['description']
-        print(location)
 
         send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name, des))
+        # for photo in photos:
+        files = open('earth.jpg', 'rb')
+        # send_post_message(chat_id,'',files)
+
 
 
 def handle_exciting_receiver_in_db(message, request, id_obj_map):
