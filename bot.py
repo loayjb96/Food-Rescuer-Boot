@@ -60,7 +60,7 @@ class Bot:
                     curr_msg = Message({'text': 'location response', 'chat': request.get('message').get('chat')})
                 elif 'photo' in message:
                     curr_msg = Message({'text': 'add photo response', 'chat': request.get('message').get('chat')})
-                elif message.get('text') != 'DONE' and message.get('text') != '/start':
+                elif message.get('text') != 'Done' and message.get('text') != '/start':
                     curr_msg = Message(request.get('message'))
                     handlers.handle_add_donaitor_description(curr_msg, request, self.id_obj_map)
                 else:

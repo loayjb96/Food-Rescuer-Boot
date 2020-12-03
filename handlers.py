@@ -7,6 +7,9 @@ from datetime import datetime, timedelta, date
 from database import main_db, get_max_id
 from photo import *
 import pathlib
+from config import MESSAGES_URL, TOKEN
+
+import telegram
 
 from box import box
 
@@ -416,15 +419,21 @@ def show_food_list(chat_id, receiver):
 
     for id in relative_distance:
         item = food_list[id]
+        photos = main_db('get_photos_by_food_id', item.get('food_id'))
         donator = main_db('get_donator_by_id', item['donator_id'])
         number_of_servings = item['number_of_servings']
         food_types = ", ".join(item['food_types'])
         user_name = '@' + donator['user_name']
         location = round(relative_distance[id], 5)
         des = item['description']
-        print(location)
 
-        send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name, des))
+        if len(photos) > 0:
+            send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name, des, '\nPhotos of the meal:\n'))
+            bot = telegram.Bot(token=TOKEN)
+            for photo in photos:
+                bot.send_photo(chat_id, open(photo, 'rb'))
+        else:
+            send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name, des))
 
 
 def handle_exciting_receiver_in_db(message, request, id_obj_map):
