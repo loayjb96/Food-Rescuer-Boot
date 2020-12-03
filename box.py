@@ -30,6 +30,27 @@ def padded(
     ] if e)
 
 
+def meal_box(msg):
+    arrow = (AL + AR)
+    res = [
+        padded(
+
+            (AL * (len(msg)// 3)+ arrow),
+            intro=UL, outro=' ', filler=' '
+
+        ),
+        # first line
+        padded(
+            msg,
+            intro=SL, outro=' ', filler=' '
+        ),
+        padded((AL * (len(msg)// 3) + arrow),
+               intro=DL, outro=' ', filler=' '
+               )]
+
+    return '\n'.join(res)
+
+
 def box(food_id, servings, food_types, distance, user_name, des, *extras):
     arrow = (AL + AR)
     res = [

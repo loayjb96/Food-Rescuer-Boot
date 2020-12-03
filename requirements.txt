@@ -18,6 +18,8 @@ defusedxml==0.6.0
 entrypoints==0.3
 execnet==1.7.1
 Flask==1.1.2
+geographiclib==1.50
+geopy==2.0.0
 idna==2.10
 iniconfig==1.1.1
 ipykernel==5.3.4

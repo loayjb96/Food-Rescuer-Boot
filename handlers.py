@@ -11,7 +11,7 @@ from config import MESSAGES_URL, TOKEN
 
 import telegram
 
-from box import box
+from box import box, meal_box
 
 # this needs to be removed
 donators = []
@@ -39,7 +39,7 @@ def handle_choosing_user_type(message, request, id_obj_map):
         "chat_id": message.get_id(),
         "reply_markup": user_types
     }
-    send_post_message(data.get('chat_id'), 'Are you a Donator or Receiver?', data)
+    send_post_message(data.get('chat_id'), 'Are you a Donator or Receiver? 🧐', data)
 
 
 def get_receiver_by_id(id):
@@ -71,6 +71,7 @@ def handle_type_answer(message, request, id_obj_map):
             rec = Reciver()
             rec.init_reciver_id(id)
             id_obj_map[id] = rec
+            send_get_message(id, "💥💥 Welcome to Food Rescuer 💥💥\nWe hope we can be a helping hand 🙌🙏🤝")
         else:
             id_obj_map[id] = rec
             handle_exciting_receiver_in_db(message, request, id_obj_map)
@@ -95,7 +96,8 @@ def handle_location(message, request, id_obj_map):
         "chat_id": message.get_id(),
         "reply_markup": location_button
     }
-    send_post_message(data.get('chat_id'), 'Please send your location', data)
+    # Please send your location
+    send_post_message(data.get('chat_id'), 'Please send me your location 🗺', data)
 
 
 def handle_location_response(message, request, id_obj_map):
@@ -133,7 +135,7 @@ def handle_food_types(message, id_obj_map):
         "chat_id": message.get_id(),
         "reply_markup": servings_options
     }
-    send_post_message(data.get('chat_id'), 'added to meal type', data)
+    send_post_message(data.get('chat_id'), 'Ok, let me know more about your food preferences 🍗 🍕 🥗 ❓', data)
 
 
 def handle_food_types_response(message, request, id_obj_map):
@@ -141,21 +143,26 @@ def handle_food_types_response(message, request, id_obj_map):
     id = message.get_id()
     print(answer + " was selected")
     if answer == 'Done':
-        # add_recevier_to_db(id_obj_map[id])  todo: add adding food to DB
         print("done selection")
         handle_experation_day(message, request, id_obj_map)
         return
+    iconse = {'Halal': '🍗', 'Kosher': '🍠', 'Vegetarian': '🥚', 'Vegan': '🥗', 'Animals': '🐕🐈', 'Other': '🌏🌐'}
 
     if answer != '✔' and answer != '-':
         print("not signs")
         if answer in id_obj_map[id].m_food_being_built.m_food_types:
             print("already added")
             id_obj_map[id].m_food_being_built.remove_food_type(answer)
-            send_get_message(id, f"{answer} removed !")
+            send_get_message(id, f"You removed {answer} {iconse.get(answer)} 😣")
         else:
             print("not added before")
             id_obj_map[id].m_food_being_built.add_food_type(answer)
-            send_get_message(id, f"{answer} added !")
+            if answer == 'Animals':
+                send_get_message(id, f"You chose {answer} {iconse.get(answer)} 🤩")
+            elif answer == 'Other':
+                send_get_message(id, f"You chose {answer} {iconse.get(answer)} 🤨")
+            else:
+                send_get_message(id, f"You chose {answer} {iconse.get(answer)} 🤤")
         handle_food_types(message, id_obj_map)
 
 
@@ -173,8 +180,8 @@ def handle_experation_day(message, request, id_obj_map):
         "reply_markup": servings_options
     }
     print("going to send")
-
-    send_post_message(data.get('chat_id'), 'The food is good for?', data)
+    #
+    send_post_message(data.get('chat_id'), 'The food is good for? ⌚⌛', data)
     print("sent")
 
 
@@ -205,7 +212,7 @@ def handle_num_of_servings(message, request, id_obj_map):
         "chat_id": message.get_id(),
         "reply_markup": servings_options
     }
-    send_post_message(data.get('chat_id'), 'How many people is the meal for?', data)
+    send_post_message(data.get('chat_id'), 'Ok, how many people is the meal for? 🤔', data)
 
 
 def handle_num_of_servings_response(message, request, id_obj_map):
@@ -223,7 +230,7 @@ def handle_num_of_servings_response(message, request, id_obj_map):
 
 def add_donaitor_description(message, request, id_obj_map):
     id = message.get_id()
-    send_get_message(id, "please write a meal description")
+    send_get_message(id, "Please tell me more about the food by typing a small description 😛")
 
 
 def handle_add_donaitor_description(message, request, id_obj_map):
@@ -248,7 +255,7 @@ def handle_receiver_food_types(message, id_obj_map):
         "reply_markup": servings_options
     }
     print("ended handling food for reciever")
-    send_post_message(data.get('chat_id'), 'choose your food type', data)
+    send_post_message(data.get('chat_id'), 'Ok, let me know more about your food preferences 🍗 🍕 🥗 ❓❔', data)
 
 
 def handle_receiver_food_types_response(message, request, id_obj_map):
@@ -260,16 +267,22 @@ def handle_receiver_food_types_response(message, request, id_obj_map):
         handle_add_receiver_process_end(message)
         return
 
+    iconse = {'Halal': '🍗', 'Kosher': '🍠', 'Vegetarian': '🥚', 'Vegan': '🥗', 'Animals': '🐕🐈', 'Other': '🌏🌐'}
     if answer != '✔' and answer != '-':
         print("not signs")
         if answer in id_obj_map[id].food_types:
             print("already added")
             id_obj_map[id].remove_food_type(answer)
-            send_get_message(id, f"{answer} removed !")
+            send_get_message(id, f"You removed {answer} {iconse.get(answer)} 😣")
         else:
             print("not added before")
             id_obj_map[id].add_food_type(answer)
-            send_get_message(id, f"{answer} added !")
+            if answer == 'Animals':
+                send_get_message(id, f"You chose {answer} {iconse.get(answer)} 🤩")
+            elif answer == 'Other':
+                send_get_message(id, f"You chose {answer} {iconse.get(answer)} 🤨")
+            else:
+                send_get_message(id, f"You chose {answer} {iconse.get(answer)} 🤤")
         handle_receiver_food_types(message, id_obj_map)
 
 
@@ -280,14 +293,15 @@ def handle_add_photos(message, request, id_obj_map):
         "chat_id": message.get_id(),
         "reply_markup": user_types
     }
-    send_post_message(data.get('chat_id'), 'Do you want to add some photos?', data)
+    # Do you want to add some photos?
+    send_post_message(data.get('chat_id'), 'Do you want to add some photos⁉ 📷', data)
 
 
 def handle_add_photos_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
     if answer == 'Add photos':
-        send_get_message(id, f"Add photos, then type Done")
+        send_get_message(id, f"Yess‼ Please add as many photos as you want, but do not forget to type Done for me 🤗🤗")
     else:
         add_donator_to_db(id_obj_map[id])
 
@@ -334,12 +348,6 @@ def add_donator_to_db(donator):
     if len(donator.photos) != 0:
         food_id = get_max_id('food')
 
-        # dir_path = f"Food{food_id}/photos/"
-        # print("DIR PATH", dir_path)
-        # try:
-        #     os.mkdir(dir_path)
-        # except Exception as e:
-        #     print("ERROR", e)
         for photo_id in donator.photos:
             dir_path = f"Food{food_id}-"
             photo_path = save_photo_by_path(photo_id, dir_path)
@@ -348,7 +356,7 @@ def add_donator_to_db(donator):
             main_db('add_food_photos', {'id': '0', 'food_id': food_id, 'photo_id': photo_db_id})
         print("ID", food_id)
 
-    send_get_message(id, f"You have added new MEAL!!")
+    send_get_message(id, meal_box("❤❤ Thank you for being part of reducing food waste ❤❤"))
 
 
 def add_recevier_to_db(receiver):
@@ -371,11 +379,6 @@ def add_recevier_to_db(receiver):
 
     main_db('add_receiver', receiver_to_db)
 
-    send_get_message(id, f"You have been added to the DB!")
-
-    print("enter db")
-    print()
-
 
 def handle_add_receiver_process_end(message):
     show_db = get_inline_buttons(['Show food', 'skip'])
@@ -383,19 +386,21 @@ def handle_add_receiver_process_end(message):
         "chat_id": message.get_id(),
         "reply_markup": show_db
     }
-    send_post_message(data.get('chat_id'), 'Show food', data)
+
+    send_post_message(data.get('chat_id'),
+                      "Thank you for your cooperation 😍, I have saved all your information 😉\nWhat's next❓", data)
 
 
 def handle_receiver_end_response(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
     if answer == 'Show food':
-        print("TYPES", id_obj_map[id].food_types)
-        send_get_message(id, f"{answer} was pressed!")
+        send_get_message(message.get_id(),
+                         "Here is your relevant food with their contacts 🤗\nFeel free to contact the most appropriate one 😎")
         show_food_list(id, id_obj_map[id])
         return
     elif answer == 'skip':
-        send_get_message(id, f"{answer} was pressed!")
+        send_get_message(id, f"Ok, see you next time ❗👋👋")
 
 
 # private func..
@@ -428,7 +433,8 @@ def show_food_list(chat_id, receiver):
         des = item['description']
 
         if len(photos) > 0:
-            send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name, des, '\nPhotos of the meal:\n'))
+            send_get_message(chat_id, box(id, number_of_servings, food_types, str(location), user_name, des,
+                                          '\nPhotos of the meal:\n'))
             bot = telegram.Bot(token=TOKEN)
             for photo in photos:
                 bot.send_photo(chat_id, open(photo, 'rb'))
@@ -442,14 +448,17 @@ def handle_exciting_receiver_in_db(message, request, id_obj_map):
         "chat_id": message.get_id(),
         "reply_markup": user_types
     }
-    send_post_message(data.get('chat_id'), 'what would you like to do?', data)
+    # what would you like to do?
+    send_post_message(data.get('chat_id'), 'Ok, I see that you have been here before 😚\nWhat would you like to do?',
+                      data)
 
 
 def handle_exciting_receiver_in_db_responce(message, request, id_obj_map):
     answer = request['callback_query']['data']
     id = message.get_id()
     if answer == 'Show food':
-        send_get_message(id, f"{answer} was pressed!")
+        send_get_message(id,
+                         f"Here is your relevant food with their contacts 🤗\nFeel free to contact the most appropriate one 😎")
         print(id, id_obj_map)
         show_food_list(id, id_obj_map[id])
     elif answer == 'Restart Process':

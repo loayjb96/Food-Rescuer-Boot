@@ -4,56 +4,14 @@ import handlers
 
 class Bot:
     def __init__(self):
-        self.flow_graph = {}
         self.handlers = {}
         self.id_obj_map = {}
-        self.build_flow()
-
-    def build_flow(self):
-        self.flow_graph = {
-            'start': {
-                'donator': {
-                    'location': {
-                        'num_of_servings': {
-                            'expiration_day': {
-                                'done'
-                            }
-                        }
-                    }
-                },
-                'receiver': {
-                    'location': {
-                        'relevant_foods': {}
-                    }
-                }
-            }
-        }
-
-    # def get_next_step(self, obj, req):
-    #     if obj == None:
 
     def add_handler(self, action, func):
         self.handlers[action] = func
 
-    def usage(self):
-        message = 'Choose one of the following options:\n'
-        for idx, handler in enumerate(self.handlers):
-            message += f'{idx + 1}- {handler} <number>\n'
-        return message
-
     def action(self, request):
         try:
-            # print("REQ")
-            # photo = request['message']['photo']
-            # print("PHOTO", photo, type(photo), type(photo[-1]))
-            # get_photo_from_file_path(photo[-1]['file_id'])
-
-            # for key in request:
-            #     # print(key, ":", request[key])
-            #     if key == 'message':
-            #         temp = request[key]
-            #
-
             if 'message' in request:
                 message = request.get('message')
                 if 'location' in message:
@@ -82,24 +40,27 @@ def get_bot():
 
     bot.add_handler('/start', handlers.handle_choosing_user_type)
     bot.add_handler('/location', handlers.handle_location)
-    bot.add_handler('Are you a Donator or Receiver?', handlers.handle_type_answer)
+    bot.add_handler('Are you a Donator or Receiver? 🧐', handlers.handle_type_answer)
     bot.add_handler('location response', handlers.handle_location_response)
 
     # bot.add_handler('Please send your location', handlers.handle_location_response)
-    bot.add_handler('The food is good for?', handlers.handle_experation_day_response)
-    bot.add_handler('How many people is the meal for?', handlers.handle_num_of_servings_response)
+    bot.add_handler('The food is good for? ⌚⌛', handlers.handle_experation_day_response)
+    bot.add_handler('Ok, how many people is the meal for? 🤔', handlers.handle_num_of_servings_response)
 
-    bot.add_handler('choose your food type', handlers.handle_receiver_food_types_response)
-    bot.add_handler('added to meal type', handlers.handle_food_types_response)
+    bot.add_handler('Ok, let me know more about your food preferences 🍗 🍕 🥗 ❓❔',
+                    handlers.handle_receiver_food_types_response)
+    bot.add_handler('Ok, let me know more about your food preferences 🍗 🍕 🥗 ❓', handlers.handle_food_types_response)
 
-    bot.add_handler('Show food', handlers.handle_receiver_end_response)
-    bot.add_handler('what would you like to do?', handlers.handle_exciting_receiver_in_db_responce)
+    bot.add_handler("Thank you for your cooperation 😍, I have saved all your information 😉\nWhat's next❓",
+                    handlers.handle_receiver_end_response)
+    bot.add_handler('Ok, I see that you have been here before 😚\nWhat would you like to do?',
+                    handlers.handle_exciting_receiver_in_db_responce)
 
-    bot.add_handler('Do you want to add some photos?', handlers.handle_add_photos_response)
+    bot.add_handler('Do you want to add some photos⁉ 📷', handlers.handle_add_photos_response)
     bot.add_handler('add photo response', handlers.handle_photo_response)
     bot.add_handler('Done', handlers.handle_add_photos_done)
 
     # bot.add_handler('You have added new MEAL!!', handlers.handle_exciting_receiver_in_db_responce)
-    bot.add_handler('please write a meal description', handlers.handle_add_donaitor_description)
+    # bot.add_handler('Please tell me more about the food by writing small description 😛', handlers.handle_add_donaitor_description)
 
     return bot
